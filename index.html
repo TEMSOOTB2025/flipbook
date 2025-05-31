@@ -48,8 +48,9 @@
     const loadingTask = pdfjsLib.getDocument(url);
        alert('1');
     loadingTask.promise.then(function(pdf) {
+        alert('2');
       const flipbook = $('#flipbook');
-       alert('2');
+       alert('3');
       const totalPages = pdf.numPages;
    
       function loadPage(pageNumber) {
