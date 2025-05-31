@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,12 +5,11 @@
   <title>My PDF Flipbook</title>
   <!-- jQuery (Required by Turn.js) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- Turn.js (Flipbook engine) https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js-->
+  <!-- Turn.js (Flipbook engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-  <!-- PDF.js from CDN https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js-->
+  <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    // Link the worker script from CDN
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
@@ -21,19 +19,22 @@
       background: #e0e0e0;
       font-family: sans-serif;
     }
+
     #flipbook {
       width: 800px;
       height: 500px;
       margin: 50px auto;
     }
+
     .page {
-      width: 400px; /* Half of 800px */
+      width: 400px;
       height: 600px;
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
       position: relative;
     }
+
     .page::after {
       content: attr(data-page-number);
       position: absolute;
@@ -42,38 +43,56 @@
       font-size: 12px;
       color: #D3D3D3;
     }
+
     canvas {
       width: 100%;
       height: 100%;
     }
-   
-    button {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
 
-    button img {
-      height: 40px; /* Adjust size as needed */
-    }
+    .nav-button {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
+    }
 
+    #prev-btn {
+      left: 20px;
+    }
+
+    #next-btn {
+      right: 20px;
+    }
+
+    .nav-button img {
+      height: 50px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .nav-button img:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
 
   <div id="flipbook"></div>
- 
-  <button id="prev-btn" onclick="$('#flipbook').turn('previous')">
-    <img src="prev-arrow.png" alt="Previous">
-  </button>
 
-  <button id="next-btn" onclick="$('#flipbook').turn('next')">
-    <img src="next-arrow.png" alt="Next">
-  </button>
+  <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
+    <img src="prev-arrow.png" alt="Previous">
+  </button>
 
+  <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
+    <img src="next-arrow.png" alt="Next">
+  </button>
 
   <script>
-    const url = 'Suffield Form.pdf'; // <-- Make sure this matches your uploaded PDF file name
+    const url = 'Suffield Form.pdf'; // Make sure this matches your PDF file name
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -102,34 +121,29 @@
             if (pageNumber < totalPages) {
               loadPage(pageNumber + 1);
             } else {
-              // Ensure an even number of pages
               if (totalPages % 2 !== 0) {
                 const blankPage = $('<div class="page">');
                 flipbook.append(blankPage);
               }
-              // All pages loaded — initialize flipbook
               flipbook.turn({
                 width: 800,
                 height: 600,
                 autoCenter: true,
-                display: 'double', // Enables two-page view
+                display: 'double',
                 acceleration: true,
-                gradients: true,
-                elevation: 100, // adds a 3D shadow effect
-                duration: 1200 // slower flip for realism
-
-                
+                gradients: true,
+                elevation: 100,
+                duration: 1200
               });
             }
           });
         });
       }
 
-      // Start with page 1
       loadPage(1);
     }).catch(error => {
       console.error('Error loading PDF:', error);
-      alert('Failed to load PDF. Please make sure yourfile.pdf is uploaded and matches the name in the code.');
+      alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
     });
   </script>
 </body>
