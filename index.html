@@ -52,7 +52,7 @@
     loadingTask.promise.then(function(pdf) {
       const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
-
+      alert(totalPages);
       function loadPage(pageNumber) {
         pdf.getPage(pageNumber).then(page => {
           const scale = 1.5;
