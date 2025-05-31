@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <title>My PDF Flipbook</title>
 
-  <!-- Turn.js (CDN) -->
+  <!-- Turn.js (Flipbook engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
 
-  <!-- jQuery (needed by Turn.js) -->
+  <!-- jQuery (Required by Turn.js) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <!-- PDF.js -->
-  <script src="pdf.js"></script>
+  <!-- PDF.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    // Link the worker script
+    // Link the worker script (must also be uploaded to GitHub repo)
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
   </script>
 
@@ -46,7 +46,7 @@
   <div id="flipbook"></div>
 
   <script>
-    const url = 'yourfile.pdf'; // Make sure your PDF is named this
+    const url = 'yourfile.pdf'; // <-- Make sure this matches your uploaded PDF file name
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -74,7 +74,7 @@
             if (pageNumber < totalPages) {
               loadPage(pageNumber + 1);
             } else {
-              // All pages loaded — now initialize flipbook
+              // All pages loaded — initialize flipbook
               flipbook.turn({
                 width: 800,
                 height: 600,
@@ -85,9 +85,13 @@
         });
       }
 
-      // Start loading first page
+      // Start with page 1
       loadPage(1);
+    }).catch(error => {
+      console.error('Error loading PDF:', error);
+      alert('Failed to load PDF. Please make sure yourfile.pdf is uploaded and matches the name in the code.');
     });
   </script>
 </body>
 </html>
+
