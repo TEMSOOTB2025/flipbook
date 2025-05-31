@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
   <!-- PDF.js from CDN https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    // Link the worker script (must also be uploaded to GitHub repo)
+    // Link the worker script from CDN
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
@@ -26,33 +27,61 @@
       margin: 50px auto;
     }
     .page {
-      width: 400px;
+      width: 400px; /* Half of 800px */
       height: 600px;
       background: white;
       overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .page::after {
+      content: attr(data-page-number);
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 12px;
+      color: #999;
     }
     canvas {
       width: 100%;
       height: 100%;
+    }
+    button {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #333;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    button:hover {
+      background: #555;
+    }
+    #prev-btn {
+      left: 10px;
+    }
+    #next-btn {
+      right: 10px;
     }
   </style>
 </head>
 <body>
 
   <div id="flipbook"></div>
+  <button id="prev-btn" onclick="$('#flipbook').turn('previous')">Previous</button>
+  <button id="next-btn" onclick="$('#flipbook').turn('next')">Next</button>
 
   <script>
     const url = 'yourfile.pdf'; // <-- Make sure this matches your uploaded PDF file name
-  
+
     const loadingTask = pdfjsLib.getDocument(url);
-     
     loadingTask.promise.then(function(pdf) {
-       
       const flipbook = $('#flipbook');
-       
       const totalPages = pdf.numPages;
- 
+
       function loadPage(pageNumber) {
         pdf.getPage(pageNumber).then(page => {
           const scale = 1.5;
@@ -69,18 +98,23 @@
 
           page.render(renderContext).promise.then(() => {
             const pageDiv = $('<div class="page">').append(canvas);
+            pageDiv.attr('data-page-number', pageNumber);
             flipbook.append(pageDiv);
 
             if (pageNumber < totalPages) {
-            
               loadPage(pageNumber + 1);
             } else {
+              // Ensure an even number of pages
+              if (totalPages % 2 !== 0) {
+                const blankPage = $('<div class="page">');
+                flipbook.append(blankPage);
+              }
               // All pages loaded — initialize flipbook
               flipbook.turn({
                 width: 800,
                 height: 600,
                 autoCenter: true,
-                display:'double'
+                display: 'double' // Enables two-page view
               });
             }
           });
@@ -96,4 +130,3 @@
   </script>
 </body>
 </html>
-
