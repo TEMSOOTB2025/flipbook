@@ -44,12 +44,14 @@
 
   <script>
     const url = 'yourfile.pdf'; // <-- Make sure this matches your uploaded PDF file name
-   alert(url);
+  
     const loadingTask = pdfjsLib.getDocument(url);
+       alert('1');
     loadingTask.promise.then(function(pdf) {
       const flipbook = $('#flipbook');
+       alert('2');
       const totalPages = pdf.numPages;
-      alert(totalPages);
+   
       function loadPage(pageNumber) {
         pdf.getPage(pageNumber).then(page => {
           const scale = 1.5;
