@@ -48,7 +48,7 @@
     }
     button {
       position: fixed;
-      top: 50%;
+      top: 80%;
       transform: translateY(-50%);
       background: #333;
       color: white;
@@ -71,8 +71,15 @@
 <body>
 
   <div id="flipbook"></div>
-  <button id="prev-btn" onclick="$('#flipbook').turn('previous')">Previous</button>
-  <button id="next-btn" onclick="$('#flipbook').turn('next')">Next</button>
+ 
+  <button id="prev-btn" onclick="$('#flipbook').turn('previous')">
+    <img src="prev-arrow.png" alt="Previous">
+  </button>
+
+  <button id="next-btn" onclick="$('#flipbook').turn('next')">
+    <img src="next-arrow.png" alt="Next">
+  </button>
+
 
   <script>
     const url = 'Suffield Form.pdf'; // <-- Make sure this matches your uploaded PDF file name
