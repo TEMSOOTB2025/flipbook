@@ -26,6 +26,10 @@
       margin: 60px auto;
     }
 
+    #loader{
+        font-family: Arial;
+        color: #555
+    }
     .page {
       width: 400px;
       height: 500px;
@@ -80,7 +84,11 @@
   </style>
 </head>
 <body>
-
+  <!-- Loading Spinner -->
+<div id="loader" style="text-align: center; margin-top: 100px;">
+  <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
+  <p>Loading flipbook, please wait...</p>
+</div>
   <div id="flipbook"></div>
 
   <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
@@ -96,11 +104,16 @@
 
     const url = 'OOTB2025.pdf';// Make sure this matches your PDF file name
 
+    <!-- Loading Spinner -->
+// Show loader
+document.getElementById("loader").style.display = "block";
+
+
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
       const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
-
+      
       function loadPage(pageNumber) {
         pdf.getPage(pageNumber).then(page => {
           const scale = 1.5;
@@ -137,6 +150,7 @@
                 elevation: 300,
                 duration: 1500
               });
+               document.getElementById("loader").style.display = "none";
             }
           });
         });
