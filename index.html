@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>2. Out of the Blue - Timothy Edwards Middle School</title>
+  <title>1. Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -138,6 +138,13 @@
 
   <div id="tooltip"></div>
 
+  <!-- Audio element for page turn -->
+  <audio id="page-turn-audio" preload="auto">
+    <source src="turn.mp3" type="audio/mpeg">
+    <!-- fallback -->
+    Your browser does not support the audio element.
+  </audio>
+
   <script>
     document.getElementById("loader").style.display = "block";
 
@@ -147,6 +154,9 @@
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
+
+    const turnAudio = document.getElementById("page-turn-audio");
+    turnAudio.volume = 0.4;
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -168,9 +178,7 @@
             viewport: viewport
           };
 
-          return page.render(renderContext).promise.then(() => {
-            return canvas;
-          });
+          return page.render(renderContext).promise.then(() => canvas);
         });
       }
 
@@ -183,8 +191,7 @@
         }
 
         if (totalPages % 2 !== 0) {
-          const blankPage = $('<div class="page">');
-          flipbook.append(blankPage);
+          flipbook.append($('<div class="page">'));
         }
 
         flipbook.turn({
@@ -199,6 +206,8 @@
           when: {
             turned: function(event, page) {
               scrollbar.value = page;
+              turnAudio.currentTime = 0;
+              turnAudio.play().catch(() => {}); // suppress autoplay errors
             }
           }
         });
@@ -207,6 +216,18 @@
         document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
+
+        // Optional: Enable scrollbar
+        // scrollbarContainer.style.display = "block";
+        // scrollbarContainer.style.visibility = "visible";
+
+        prevBtn.addEventListener('click', () => {
+          $("#flipbook").turn("previous");
+        });
+
+        nextBtn.addEventListener('click', () => {
+          $("#flipbook").turn("next");
+        });
       }
 
       loadPages();
