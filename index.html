@@ -29,14 +29,14 @@
     }
 
     #flipbook {
-      width: 800px;
+      width: 1000px;
       height: 500px;
       margin: 60px auto 20px;
       display: none;
     }
 
     .page {
-      width: 400px;
+      width: 500px;
       height: 500px;
       background: white;
       overflow: hidden;
@@ -97,7 +97,6 @@
       width: 60%;
     }
 
-    /* Organization Info */
     #org-info {
       position: fixed;
       top: 30px;
@@ -120,7 +119,6 @@
       word-wrap: break-word;
     }
 
-    /* Loader Enhancements */
     #loader img {
       animation: bounce 1.5s infinite;
     }
@@ -130,17 +128,12 @@
       50% { transform: translateY(-10px); }
     }
 
-    /* Hide scrollbar thumb (Webkit browsers) */
     #page-scrollbar::-webkit-slider-thumb {
       opacity: 0;
     }
-
-    /* Hide scrollbar thumb (Firefox) */
     #page-scrollbar::-moz-range-thumb {
       opacity: 0;
     }
-
-    /* Hide scrollbar thumb (IE/Edge) */
     #page-scrollbar::-ms-thumb {
       opacity: 0;
     }
@@ -174,7 +167,6 @@
 
 <script>
 const url = 'OOTB2025.pdf';
-const initialPagesToLoad = 20;
 const renderedPages = {};
 let pdf;
 let totalPages = 0;
@@ -216,30 +208,26 @@ pdfjsLib.getDocument(url).promise.then(function(loadedPdf) {
   }
 
   flipbook.turn({
-    width: 800,
+    width: 1000,
     height: 500,
     autoCenter: true,
     display: 'double',
-    acceleration: true,
+    acceleration: false,
     gradients: true,
     elevation: 300,
     duration: 1500,
     pages: totalPages
   });
 
-  let pagesLoaded = 0;
-  for (let i = 1; i <= Math.min(initialPagesToLoad, totalPages); i++) {
+  let pagesRendered = 0;
+  for (let i = 1; i <= totalPages; i++) {
     renderPage(i, () => {
-      pagesLoaded++;
-      if (pagesLoaded === Math.min(initialPagesToLoad, totalPages)) {
+      pagesRendered++;
+      if (pagesRendered === totalPages) {
         $('#loader').fadeOut(500, () => {
           $('#flipbook').fadeIn(400);
           $('#prev-btn, #next-btn, #page-scrollbar-container').fadeIn(400);
         });
-
-        for (let j = initialPagesToLoad + 1; j <= totalPages; j++) {
-          setTimeout(() => renderPage(j), 50 * (j - initialPagesToLoad));
-        }
       }
     });
   }
