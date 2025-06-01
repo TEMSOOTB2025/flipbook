@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>My PDF Flipbook</title>
+
   <!-- jQuery (Required by Turn.js) -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <!-- Turn.js (Flipbook engine) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
@@ -24,12 +27,16 @@
       width: 800px;
       height: 500px;
       margin: 60px auto;
+      display: none; /* Hidden until ready */
     }
 
-    #loader{
-        font-family: Arial;
-        color: #555
+    #loader {
+      font-family: Arial;
+      color: #555;
+      text-align: center;
+      margin-top: 100px;
     }
+
     .page {
       width: 400px;
       height: 500px;
@@ -79,18 +86,21 @@
     }
 
     .nav-button img:hover {
-      opacity: 0.8;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <!-- Loading Spinner -->
-<div id="loader" style="text-align: center; margin-top: 100px;">
-  <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
-  <p>Loading flipbook, please wait...</p>
-</div>
+  <div id="loader">
+    <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
+    <p>Loading flipbook, please wait...</p>
+  </div>
+
+  <!-- Flipbook container -->
   <div id="flipbook"></div>
 
+  <!-- Navigation Buttons -->
   <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
     <img src="previous-arrow.png" alt="Previous">
   </button>
@@ -99,68 +109,74 @@
     <img src="next-arrow.png" alt="Next">
   </button>
 
+  <!-- Flipbook Script -->
   <script>
-   
+    // Show loader
+    document.getElementById("loader").style.display = "block";
 
-    const url = 'OOTB2025.pdf';// Make sure this matches your PDF file name
+    // Delay to allow browser to show the loader
+    setTimeout(() => {
+      const url = 'OOTB2025.pdf'; // Your PDF file
 
-    <!-- Loading Spinner -->
-// Show loader
-document.getElementById("loader").style.display = "block";
+      const loadingTask = pdfjsLib.getDocument(url);
+      loadingTask.promise.then(function(pdf) {
+        const flipbook = $('#flipbook');
+        const totalPages = pdf.numPages;
 
+        function loadPage(pageNumber) {
+          pdf.getPage(pageNumber).then(page => {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-    const loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function(pdf) {
-      const flipbook = $('#flipbook');
-      const totalPages = pdf.numPages;
-      
-      function loadPage(pageNumber) {
-        pdf.getPage(pageNumber).then(page => {
-          const scale = 1.5;
-          const viewport = page.getViewport({ scale });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
+            page.render(renderContext).promise.then(() => {
+              const pageDiv = $('<div class="page">').append(canvas);
+              pageDiv.attr('data-page-number', pageNumber);
+              flipbook.append(pageDiv);
 
-          page.render(renderContext).promise.then(() => {
-            const pageDiv = $('<div class="page">').append(canvas);
-            pageDiv.attr('data-page-number', pageNumber);
-            flipbook.append(pageDiv);
+              if (pageNumber < totalPages) {
+                loadPage(pageNumber + 1);
+              } else {
+                // If odd number of pages, add blank
+                if (totalPages % 2 !== 0) {
+                  const blankPage = $('<div class="page">');
+                  flipbook.append(blankPage);
+                }
 
-            if (pageNumber < totalPages) {
-              loadPage(pageNumber + 1);
-            } else {
-              if (totalPages % 2 !== 0) {
-                const blankPage = $('<div class="page">');
-                flipbook.append(blankPage);
+                // Initialize flipbook
+                flipbook.turn({
+                  width: 800,
+                  height: 500,
+                  autoCenter: true,
+                  display: 'double',
+                  acceleration: true,
+                  gradients: true,
+                  elevation: 300,
+                  duration: 1500
+                });
+
+                // Hide loader and show flipbook
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("flipbook").style.display = "block";
               }
-              flipbook.turn({
-                width: 800,
-                height: 500,
-                autoCenter: true,
-                display: 'double',
-                acceleration: true,
-                gradients: true,
-                elevation: 300,
-                duration: 1500
-              });
-               document.getElementById("loader").style.display = "none";
-            }
+            });
           });
-        });
-      }
+        }
 
-      loadPage(1);
-    }).catch(error => {
-      console.error('Error loading PDF:', error);
-      alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
-    });
+        loadPage(1);
+      }).catch(error => {
+        console.error('Error loading PDF:', error);
+        alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
+      });
+    }, 0);
   </script>
 </body>
 </html>
