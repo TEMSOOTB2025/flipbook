@@ -29,7 +29,7 @@
 
     #flipbook {
       width: 880px;
-      height: 570px;
+      height: 610px; /* Increased height by 20px */
       margin: 0 auto;
       position: relative;
       display: none;
@@ -44,7 +44,7 @@
 
     .page {
       width: 440px;
-      height: 570px;
+      height: 610px; /* Increased height by 20px */
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
@@ -77,16 +77,17 @@
       z-index: 1000;
       border-radius: 8px;
       padding: 5px;
+      display: none;
     }
 
     #prev-btn {
       left: -60px;
-      bottom: 10px;
+      bottom: 0;
     }
 
     #next-btn {
       right: -60px;
-      bottom: 10px;
+      bottom: 0;
     }
 
     .nav-button img {
@@ -106,6 +107,7 @@
       text-align: center;
       position: relative;
       display: none;
+      visibility: hidden;
     }
 
     #page-scrollbar {
@@ -143,7 +145,7 @@
     </button>
   </div>
 
-  <div id="page-scrollbar-container" style="display:none">
+  <div id="page-scrollbar-container">
     <input type="range" id="page-scrollbar" min="1" max="1" value="1">
   </div>
 
@@ -156,6 +158,8 @@
     const tooltip = document.getElementById("tooltip");
     const scrollbar = document.getElementById("page-scrollbar");
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
 
     // const cache = new Map(); // Caching temporarily disabled
 
@@ -201,7 +205,7 @@
 
         flipbook.turn({
           width: 880,
-          height: 570,
+          height: 610,
           autoCenter: true,
           display: 'double',
           acceleration: true,
@@ -217,7 +221,9 @@
 
         document.getElementById("loader").style.display = "none";
         document.getElementById("flipbook").style.display = "block";
-        // scrollbarContainer.style.display = "block"; // Hide scrollbar as requested
+        prevBtn.style.display = "block";
+        nextBtn.style.display = "block";
+        // scrollbarContainer.style.display = "block"; // Keep hidden as requested
       }
 
       loadPages();
@@ -251,4 +257,3 @@
   </script>
 </body>
 </html>
-
