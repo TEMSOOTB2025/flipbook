@@ -23,8 +23,8 @@
 
     #flipbook {
       width: 880px;
-      height: 520px; /* Increased height by 10px */
-      margin: 60px auto;
+      height: 530px; /* Increased by 20px */
+      margin: 60px auto 20px;
       position: relative;
       display: none;
     }
@@ -38,7 +38,7 @@
 
     .page {
       width: 440px;
-      height: 520px; /* Increased height by 10px */
+      height: 530px;
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
@@ -65,19 +65,17 @@
       border: none;
       cursor: pointer;
       z-index: 1000;
-      display: none;
       border-radius: 8px;
       padding: 5px;
+      bottom: 10px;
     }
 
     #prev-btn {
-      bottom: 0;
-      left: calc(50% - 440px - 10px); /* 10px left of flipbook */
+      left: 10px;
     }
 
     #next-btn {
-      bottom: 0;
-      right: calc(50% - 440px - 10px); /* 10px right of flipbook */
+      right: 10px;
     }
 
     .nav-button img {
@@ -96,6 +94,7 @@
       margin: 10px auto 30px;
       text-align: center;
       display: none;
+      position: relative;
     }
 
     #page-scrollbar {
@@ -145,7 +144,7 @@
   <script>
     document.getElementById("loader").style.display = "block";
 
-    const url = 'OOTB2025.pdf'; // Your PDF file
+    const url = 'OOTB2025.pdf';
     const tooltip = document.getElementById("tooltip");
     const scrollbar = document.getElementById("page-scrollbar");
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
@@ -185,7 +184,7 @@
 
               flipbook.turn({
                 width: 880,
-                height: 520,
+                height: 530,
                 autoCenter: true,
                 display: 'double',
                 acceleration: true,
@@ -193,12 +192,13 @@
                 elevation: 300,
                 duration: 1500,
                 when: {
-                  turned: function (e, page) {
+                  turned: function(event, page) {
                     scrollbar.value = page;
                   }
                 }
               });
 
+              // Reveal elements
               document.getElementById("loader").style.display = "none";
               document.getElementById("flipbook").style.display = "block";
               scrollbarContainer.style.display = "block";
@@ -214,6 +214,7 @@
       alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
     });
 
+    // Scrollbar interaction
     scrollbar.addEventListener('input', function (e) {
       const page = parseInt(e.target.value);
       $("#flipbook").turn("page", page);
@@ -222,15 +223,17 @@
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
-      const pageNum = Math.round(percent * (scrollbar.max - 1)) + 1;
-      const displayPages = pageNum % 2 === 0
-        ? `Pages ${pageNum}-${pageNum + 1}`
-        : `Pages ${pageNum - 1}-${pageNum}`;
+      const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
+
+      const leftPage = estimatedPage % 2 === 0 ? estimatedPage - 1 : estimatedPage;
+      const rightPage = (leftPage + 1 <= scrollbar.max) ? leftPage + 1 : null;
 
       tooltip.style.left = (e.pageX - 20) + "px";
       tooltip.style.top = (e.pageY - 40) + "px";
       tooltip.style.display = "block";
-      tooltip.innerText = displayPages;
+      tooltip.innerText = rightPage
+        ? `Pages ${leftPage}–${rightPage}`
+        : `Page ${leftPage}`;
     });
 
     scrollbar.addEventListener('mouseleave', function () {
