@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My PDF Flipbook</title>
+  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -23,7 +23,7 @@
 
     #flipbook {
       width: 800px;
-      height: 840px; /* 20% taller than previous 700px */
+      height: 750px;
       margin: 60px auto;
       position: relative;
       display: none;
@@ -38,7 +38,7 @@
 
     .page {
       width: 400px;
-      height: 840px;
+      height: 750px;
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
@@ -65,7 +65,7 @@
       border: none;
       cursor: pointer;
       z-index: 1000;
-      display: none; /* Hidden until flipbook loads */
+      display: none;
     }
 
     #prev-btn {
@@ -93,6 +93,7 @@
       width: 800px;
       margin: 10px auto 30px;
       text-align: center;
+      display: none; /* Hidden until flipbook is ready */
     }
 
     #page-scrollbar {
@@ -138,13 +139,13 @@
   <!-- Tooltip -->
   <div id="tooltip"></div>
 
-  <!-- Flipbook Script -->
   <script>
     document.getElementById("loader").style.display = "block";
 
-    const url = 'OOTB2025.pdf';
+    const url = 'OOTB2025.pdf'; // Replace with your file name
     const tooltip = document.getElementById("tooltip");
     const scrollbar = document.getElementById("page-scrollbar");
+    const scrollbarContainer = document.getElementById("page-scrollbar-container");
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -181,18 +182,19 @@
 
               flipbook.turn({
                 width: 800,
-                height: 840,
+                height: 750,
                 autoCenter: true,
                 display: 'double',
                 acceleration: true,
                 gradients: true,
-                elevation: 500,
+                elevation: 300,
                 duration: 1500
               });
 
-              // Show flipbook and navigation
+              // Reveal flipbook + nav buttons + scrollbar
               document.getElementById("loader").style.display = "none";
               document.getElementById("flipbook").style.display = "block";
+              scrollbarContainer.style.display = "block";
               document.querySelectorAll(".nav-button").forEach(btn => btn.style.display = "block");
             }
           });
