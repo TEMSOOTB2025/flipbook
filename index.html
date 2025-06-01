@@ -136,7 +136,7 @@
 <div id="flipbook"></div>
 
 <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
-  <img src="pervious-arrow.png" alt="Previous" />
+  <img src="prev-arrow.png" alt="Previous" />
 </button>
 
 <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
@@ -149,12 +149,11 @@
 
 <script>
 const url = 'OOTB2025.pdf';
-const initialPagesToLoad = 25;
+const initialPagesToLoad = 7;
 const renderedPages = {};
 let pdf;
 let totalPages = 0;
 const flipbook = $('#flipbook');
- 
 
 function renderPage(pageNumber, callback) {
   if (renderedPages[pageNumber]) {
@@ -213,7 +212,7 @@ pdfjsLib.getDocument(url).promise.then(function(loadedPdf) {
         $('#prev-btn, #next-btn, #page-scrollbar-container').show();
 
         for (let j = initialPagesToLoad + 1; j <= totalPages; j++) {
-          setTimeout(() => renderPage(j), 100 * (j - initialPagesToLoad));
+          setTimeout(() => renderPage(j), 50 * (j - initialPagesToLoad));
         }
       }
     });
