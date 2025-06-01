@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue - Timothy Edwards Middle School</title>
+  <title>1. Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -22,8 +22,8 @@
     }
 
     #flipbook {
-      width: 880px; /* 800px + 10% */
-      height: 500px; /* 750px + 10% */
+      width: 880px;
+      height: 510px;
       margin: 60px auto;
       position: relative;
       display: none;
@@ -37,8 +37,8 @@
     }
 
     .page {
-      width: 440px; /* 400px + 10% */
-      height: 500px;
+      width: 440px;
+      height: 510px;
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
@@ -61,21 +61,25 @@
 
     .nav-button {
       position: absolute;
-      background: none;
+      background: gray; /* Background color added */
       border: none;
       cursor: pointer;
       z-index: 1000;
       display: none;
+      border-radius: 8px;
+      padding: 5px;
     }
 
     #prev-btn {
-      left: 0;
-      bottom: 0;
+      left: 40px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     #next-btn {
-      right: 0;
-      bottom: 0;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     .nav-button img {
@@ -121,15 +125,16 @@
   </div>
 
   <!-- Flipbook Container -->
-  <div id="flipbook">
-    <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
-      <img src="previous-arrow.png" alt="Previous">
-    </button>
+  <div id="flipbook"></div>
 
-    <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
-      <img src="next-arrow.png" alt="Next">
-    </button>
-  </div>
+  <!-- Navigation Buttons -->
+  <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
+    <img src="previous-arrow.png" alt="Previous">
+  </button>
+
+  <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
+    <img src="next-arrow.png" alt="Next">
+  </button>
 
   <!-- Page Scrollbar -->
   <div id="page-scrollbar-container">
@@ -142,7 +147,7 @@
   <script>
     document.getElementById("loader").style.display = "block";
 
-    const url = 'OOTB2025.pdf'; // Replace with your file name
+    const url = 'OOTB2025.pdf'; // Replace with your PDF filename
     const tooltip = document.getElementById("tooltip");
     const scrollbar = document.getElementById("page-scrollbar");
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
@@ -182,7 +187,7 @@
 
               flipbook.turn({
                 width: 880,
-                height: 500,
+                height: 510,
                 autoCenter: true,
                 display: 'double',
                 acceleration: true,
@@ -191,7 +196,7 @@
                 duration: 1500
               });
 
-              // Reveal flipbook + nav buttons + scrollbar
+              // Reveal elements
               document.getElementById("loader").style.display = "none";
               document.getElementById("flipbook").style.display = "block";
               scrollbarContainer.style.display = "block";
