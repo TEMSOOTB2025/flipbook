@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  <meta charset="UTF-8">
+  <title>My PDF Flipbook</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -21,6 +21,14 @@
       font-family: sans-serif;
     }
 
+    #flipbook {
+      width: 800px;
+      height: 500px;
+      margin: 60px auto;
+      position: relative;
+      display: none;
+    }
+
     #loader {
       font-family: Arial;
       color: #555;
@@ -28,15 +36,8 @@
       margin-top: 100px;
     }
 
-    #flipbook {
-      width: 1000px;
-      height: 500px;
-      margin: 60px auto 20px;
-      display: none;
-    }
-
     .page {
-      width: 500px;
+      width: 400px;
       height: 500px;
       background: white;
       overflow: hidden;
@@ -59,8 +60,7 @@
     }
 
     .nav-button {
-      position: fixed;
-      bottom: 100px;
+      position: absolute;
       background: none;
       border: none;
       cursor: pointer;
@@ -70,14 +70,17 @@
 
     #prev-btn {
       left: 100px;
+      bottom: 100px;
     }
 
     #next-btn {
       right: 100px;
+      bottom: 100px;
     }
 
     .nav-button img {
       height: 60px;
+      width: auto;
       opacity: 0.8;
       transition: opacity 0.3s;
     }
@@ -87,174 +90,142 @@
     }
 
     #page-scrollbar-container {
-      width: 100%;
+      width: 800px;
+      margin: 10px auto 30px;
       text-align: center;
-      margin-top: 20px;
-      display: none;
+      display: none; /* Hidden until flipbook is ready */
     }
 
     #page-scrollbar {
-      width: 60%;
+      width: 100%;
     }
 
-    #org-info {
-      position: fixed;
-      top: 30px;
-      left: 30px;
-      text-align: center;
-      z-index: 1000;
-    }
-
-    #org-logo {
-      max-width: 100px;
-      height: auto;
-      margin-bottom: 10px;
-    }
-
-    #org-name {
-      font-size: 16px;
-      color: #333;
-      font-weight: bold;
-      max-width: 120px;
-      word-wrap: break-word;
-    }
-
-    #loader img {
-      animation: bounce 1.5s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    #page-scrollbar::-webkit-slider-thumb {
-      opacity: 0;
-    }
-    #page-scrollbar::-moz-range-thumb {
-      opacity: 0;
-    }
-    #page-scrollbar::-ms-thumb {
-      opacity: 0;
+    #tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      display: none;
+      pointer-events: none;
+      z-index: 1001;
     }
   </style>
 </head>
 <body>
+  <!-- Loading Spinner -->
+  <div id="loader">
+    <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
+    <p>Loading flipbook, please wait...</p>
+  </div>
 
-<div id="loader">
-  <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60" />
-  <p>Loading flipbook, please wait...</p>
-</div>
+  <!-- Flipbook Container -->
+  <div id="flipbook">
+    <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
+      <img src="previous-arrow.png" alt="Previous">
+    </button>
 
-<div id="org-info">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/School_icon.svg/1024px-School_icon.svg.png" alt="Logo" id="org-logo" />
-  <div id="org-name">Timothy Edwards Middle School</div>
-</div>
+    <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
+      <img src="next-arrow.png" alt="Next">
+    </button>
+  </div>
 
-<div id="flipbook"></div>
+  <!-- Page Scrollbar -->
+  <div id="page-scrollbar-container">
+    <input type="range" id="page-scrollbar" min="1" max="1" value="1">
+  </div>
 
-<button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
-  <img src="prev-arrow.png" alt="Previous" />
-</button>
+  <!-- Tooltip -->
+  <div id="tooltip"></div>
 
-<button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
-  <img src="next-arrow.png" alt="Next" />
-</button>
+  <script>
+    document.getElementById("loader").style.display = "block";
 
-<div id="page-scrollbar-container">
-  <input type="range" id="page-scrollbar" min="1" value="1" />
-</div>
+    const url = 'OOTB2025.pdf'; // Replace with your file name
+    const tooltip = document.getElementById("tooltip");
+    const scrollbar = document.getElementById("page-scrollbar");
+    const scrollbarContainer = document.getElementById("page-scrollbar-container");
 
-<script>
-const url = 'OOTB2025.pdf';
-const renderedPages = {};
-let pdf;
-let totalPages = 0;
-const flipbook = $('#flipbook');
+    const loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(function(pdf) {
+      const flipbook = $('#flipbook');
+      const totalPages = pdf.numPages;
+      scrollbar.max = totalPages;
 
-function renderPage(pageNumber, callback) {
-  if (renderedPages[pageNumber]) {
-    callback && callback();
-    return;
-  }
+      function loadPage(pageNumber) {
+        pdf.getPage(pageNumber).then(page => {
+          const scale = 1.5;
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
 
-  pdf.getPage(pageNumber).then(page => {
-    const scale = 1.5;
-    const viewport = page.getViewport({ scale });
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
 
-    page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
-      const pageDiv = $('<div class="page">').append(canvas).attr('data-page-number', pageNumber);
-      if (flipbook.turn('hasPage', pageNumber)) {
-        flipbook.turn('removePage', pageNumber);
-      }
-      flipbook.turn('addPage', pageDiv, pageNumber);
-      renderedPages[pageNumber] = true;
-      callback && callback();
-    });
-  });
-}
+          page.render(renderContext).promise.then(() => {
+            const pageDiv = $('<div class="page">').append(canvas);
+            pageDiv.attr('data-page-number', pageNumber);
+            flipbook.append(pageDiv);
 
-pdfjsLib.getDocument(url).promise.then(function(loadedPdf) {
-  pdf = loadedPdf;
-  totalPages = pdf.numPages;
+            if (pageNumber < totalPages) {
+              loadPage(pageNumber + 1);
+            } else {
+              if (totalPages % 2 !== 0) {
+                const blankPage = $('<div class="page">');
+                flipbook.append(blankPage);
+              }
 
-  for (let i = 1; i <= totalPages; i++) {
-    const blank = $('<div />', { class: 'page', 'data-page-number': i });
-    flipbook.append(blank);
-  }
+              flipbook.turn({
+                width: 800,
+                height: 500,
+                autoCenter: true,
+                display: 'double',
+                acceleration: true,
+                gradients: true,
+                elevation: 300,
+                duration: 1500
+              });
 
-  flipbook.turn({
-    width: 1000,
-    height: 500,
-    autoCenter: true,
-    display: 'double',
-    acceleration: false,
-    gradients: true,
-    elevation: 300,
-    duration: 1500,
-    pages: totalPages
-  });
-
-  let pagesRendered = 0;
-  for (let i = 1; i <= totalPages; i++) {
-    renderPage(i, () => {
-      pagesRendered++;
-      if (pagesRendered === totalPages) {
-        $('#loader').fadeOut(500, () => {
-          $('#flipbook').fadeIn(400);
-          $('#prev-btn, #next-btn, #page-scrollbar-container').fadeIn(400);
+              // Reveal flipbook + nav buttons + scrollbar
+              document.getElementById("loader").style.display = "none";
+              document.getElementById("flipbook").style.display = "block";
+              scrollbarContainer.style.display = "block";
+              document.querySelectorAll(".nav-button").forEach(btn => btn.style.display = "block");
+            }
+          });
         });
       }
+
+      loadPage(1);
+    }).catch(error => {
+      console.error('Error loading PDF:', error);
+      alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
     });
-  }
 
-  flipbook.on('turning', function(event, page) {
-    renderPage(page);
-    renderPage(page - 1);
-    renderPage(page + 1);
-  });
+    // Scrollbar interaction
+    scrollbar.addEventListener('input', function (e) {
+      const page = parseInt(e.target.value);
+      $("#flipbook").turn("page", page);
+    });
 
-  const scrollbar = document.getElementById('page-scrollbar');
-  scrollbar.max = totalPages;
-  scrollbar.addEventListener('input', (e) => {
-    const page = parseInt(e.target.value);
-    $('#flipbook').turn('page', page);
-    scrollbar.title = page % 2 === 0 ? `Pages ${page}-${page+1}` : `Pages ${page-1}-${page}`;
-  });
+    scrollbar.addEventListener('mousemove', function (e) {
+      const rect = scrollbar.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const pageNum = Math.round(percent * (scrollbar.max - 1)) + 1;
+      tooltip.style.left = (e.pageX - 20) + "px";
+      tooltip.style.top = (e.pageY - 40) + "px";
+      tooltip.style.display = "block";
+      tooltip.innerText = "Page " + pageNum;
+    });
 
-  flipbook.on('turned', function(event, page) {
-    scrollbar.value = page;
-  });
-
-}).catch(error => {
-  console.error('Error loading PDF:', error);
-  alert('Failed to load PDF. Please check your network connection or try refreshing the page.');
-});
-</script>
-
+    scrollbar.addEventListener('mouseleave', function () {
+      tooltip.style.display = "none";
+    });
+  </script>
 </body>
 </html>
