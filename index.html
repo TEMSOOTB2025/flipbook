@@ -1,3 +1,6 @@
+Here's your updated code with the **page-turn sound triggered at the start of the page turn** (to eliminate the delay). Only the `flipbook.turn({ ... })` section was modified to use the `turning` event for audio.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -141,7 +144,6 @@
   <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
-    <!-- fallback -->
     Your browser does not support the audio element.
   </audio>
 
@@ -204,10 +206,12 @@
           elevation: 300,
           duration: 1500,
           when: {
+            turning: function(event, page, view) {
+              turnAudio.currentTime = 0;
+              turnAudio.play().catch(() => {});
+            },
             turned: function(event, page) {
               scrollbar.value = page;
-              turnAudio.currentTime = 0;
-              turnAudio.play().catch(() => {}); // suppress autoplay errors
             }
           }
         });
@@ -261,3 +265,6 @@
   </script>
 </body>
 </html>
+```
+
+Let me know if you’d like the sound to trigger on scrollbar jumps or keyboard navigation as well.
