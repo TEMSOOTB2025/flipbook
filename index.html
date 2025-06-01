@@ -29,7 +29,7 @@
 
     #flipbook {
       width: 880px;
-      height: 610px; /* Increased height by 20px */
+      height: 610px;
       margin: 0 auto;
       position: relative;
       display: none;
@@ -44,7 +44,7 @@
 
     .page {
       width: 440px;
-      height: 610px; /* Increased height by 20px */
+      height: 610px;
       background: white;
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
@@ -161,7 +161,9 @@
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
 
-    // const cache = new Map(); // Caching temporarily disabled
+    // Explicitly hide navigation buttons initially
+    prevBtn.style.display = "none";
+    nextBtn.style.display = "none";
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -184,7 +186,6 @@
           };
 
           return page.render(renderContext).promise.then(() => {
-            // cache.set(pageNumber, canvas);
             return canvas;
           });
         });
@@ -223,7 +224,6 @@
         document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
-        // scrollbarContainer.style.display = "block"; // Keep hidden as requested
       }
 
       loadPages();
