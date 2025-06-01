@@ -99,12 +99,11 @@
 
     /* Organization Info */
     #org-info {
-      position: absolute;
-      left: 40px;
-      top: 50%;
-      transform: translateY(-50%);
+      position: fixed;
+      top: 30px;
+      left: 30px;
       text-align: center;
-      z-index: 999;
+      z-index: 1000;
     }
 
     #org-logo {
@@ -117,50 +116,44 @@
       font-size: 16px;
       color: #333;
       font-weight: bold;
-      max-width: 100px;
+      max-width: 120px;
       word-wrap: break-word;
     }
   </style>
 </head>
 <body>
 
-<!-- Loader -->
 <div id="loader">
   <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60" />
   <p>Loading flipbook, please wait...</p>
 </div>
 
-<!-- Organization logo and name -->
 <div id="org-info">
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/School_icon.svg/1024px-School_icon.svg.png" alt="Logo" id="org-logo" />
   <div id="org-name">Timothy Edwards Middle School</div>
 </div>
 
-<!-- Flipbook container -->
 <div id="flipbook"></div>
 
-<!-- Navigation buttons -->
 <button id="prev-btn" class="nav-button" onclick="$('#flipbook').turn('previous')">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Arrow_left_font_awesome.svg/512px-Arrow_left_font_awesome.svg.png" alt="Previous" />
+  <img src="pervious-arrow.png" alt="Previous" />
 </button>
 
 <button id="next-btn" class="nav-button" onclick="$('#flipbook').turn('next')">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Arrow_right_font_awesome.svg/512px-Arrow_right_font_awesome.svg.png" alt="Next" />
+  <img src="next-arrow.png" alt="Next" />
 </button>
 
-<!-- Page scrollbar -->
 <div id="page-scrollbar-container">
   <input type="range" id="page-scrollbar" min="1" value="1" />
 </div>
 
 <script>
-const url = 'OOTB2025.pdf'; // <-- Change to your PDF filename
+const url = 'OOTB2025.pdf';
 const initialPagesToLoad = 7;
 const renderedPages = {};
-
-const flipbook = $('#flipbook');
-let totalPages = 0;
 let pdf;
+let totalPages = 0;
+const flipbook = $('#flipbook');
 
 function renderPage(pageNumber, callback) {
   if (renderedPages[pageNumber]) {
@@ -188,19 +181,15 @@ function renderPage(pageNumber, callback) {
   });
 }
 
-const loadingTask = pdfjsLib.getDocument(url);
-
-loadingTask.promise.then(function(loadedPdf) {
+pdfjsLib.getDocument(url).promise.then(function(loadedPdf) {
   pdf = loadedPdf;
   totalPages = pdf.numPages;
 
-  // Create blank pages for all
   for (let i = 1; i <= totalPages; i++) {
     const blank = $('<div />', { class: 'page', 'data-page-number': i });
     flipbook.append(blank);
   }
 
-  // Initialize Turn.js
   flipbook.turn({
     width: 1000,
     height: 700,
@@ -213,7 +202,6 @@ loadingTask.promise.then(function(loadedPdf) {
     pages: totalPages
   });
 
-  // Load initial pages
   let pagesLoaded = 0;
   for (let i = 1; i <= Math.min(initialPagesToLoad, totalPages); i++) {
     renderPage(i, () => {
@@ -222,35 +210,28 @@ loadingTask.promise.then(function(loadedPdf) {
         $('#loader').hide();
         $('#flipbook').show();
         $('#prev-btn, #next-btn, #page-scrollbar-container').show();
+
+        for (let j = initialPagesToLoad + 1; j <= totalPages; j++) {
+          setTimeout(() => renderPage(j), 100 * (j - initialPagesToLoad));
+        }
       }
     });
   }
 
-  // Lazy load as user flips
   flipbook.on('turning', function(event, page) {
     renderPage(page);
     renderPage(page - 1);
     renderPage(page + 1);
   });
 
-  // Scrollbar logic
   const scrollbar = document.getElementById('page-scrollbar');
   scrollbar.max = totalPages;
   scrollbar.addEventListener('input', (e) => {
     const page = parseInt(e.target.value);
     $('#flipbook').turn('page', page);
-
-    let hoverText = '';
-    if (page % 2 === 0) {
-      hoverText = `Pages ${page}-${page + 1}`;
-    } else {
-      hoverText = `Pages ${page - 1}-${page}`;
-    }
-
-    scrollbar.title = hoverText;
+    scrollbar.title = page % 2 === 0 ? `Pages ${page}-${page+1}` : `Pages ${page-1}-${page}`;
   });
 
-  // Sync scrollbar position after turn
   flipbook.on('turned', function(event, page) {
     scrollbar.value = page;
   });
