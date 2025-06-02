@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3. Out of the Blue - Timothy Edwards Middle School</title>
+  <title>Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -18,7 +17,7 @@
   <style>
     body {
       margin: 0;
-      background: #645394;
+      background: #89CFF0;
       font-family: sans-serif;
     }
 
@@ -219,9 +218,9 @@
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
 
-        // Optional: Enable scrollbar
-        // scrollbarContainer.style.display = "block";
-        // scrollbarContainer.style.visibility = "visible";
+        // Show scrollbar
+        scrollbarContainer.style.display = "block";
+        scrollbarContainer.style.visibility = "visible";
 
         prevBtn.addEventListener('click', () => {
           $("#flipbook").turn("previous");
@@ -243,18 +242,32 @@
       $("#flipbook").turn("page", page);
     });
 
+    // ✅ UPDATED TOOLTIP LOGIC
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
+      const maxPage = parseInt(scrollbar.max);
 
-      const leftPage = estimatedPage % 2 === 0 ? estimatedPage - 1 : estimatedPage;
-      const rightPage = (leftPage + 1 <= scrollbar.max) ? leftPage + 1 : null;
+      let label = '';
+
+      if (estimatedPage === 1) {
+        label = 'Front Cover';
+      } else if (estimatedPage === 2 || estimatedPage === 3) {
+        label = 'Introduction';
+      } else if (estimatedPage === maxPage) {
+        label = 'Back Cover';
+      } else {
+        const logicalPage = estimatedPage - 3;
+        const left = logicalPage % 2 === 0 ? logicalPage - 1 : logicalPage;
+        const right = left + 1;
+        label = `Pages ${left}–${right}`;
+      }
 
       tooltip.style.left = (e.pageX - 20) + "px";
       tooltip.style.top = (e.pageY - 40) + "px";
       tooltip.style.display = "block";
-      tooltip.innerText = rightPage ? `Pages ${leftPage}–${rightPage}` : `Page ${leftPage}`;
+      tooltip.innerText = label;
     });
 
     scrollbar.addEventListener('mouseleave', function () {
