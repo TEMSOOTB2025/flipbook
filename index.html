@@ -25,6 +25,7 @@
       width: 800px;
       margin: 60px auto 0;
       position: relative;
+      z-index: 10;
     }
 
     #flipbook {
@@ -32,7 +33,10 @@
       height: 500px;
       margin: 0 auto;
       position: relative;
+      z-index: 10;
       display: none;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
 
     #loader {
@@ -49,15 +53,18 @@
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
       position: relative;
+      z-index: 1;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
 
     canvas {
-      display: block;
-      max-width: 100%;
-      max-height: 100%;
-      width: 100% !important;
-      height: 100% !important;
-      image-rendering: optimizeQuality;
+      width: 100%;
+      height: 100%;
+      image-rendering: crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: optimizeSpeed;
+      -ms-interpolation-mode: nearest-neighbor;
     }
 
     .nav-button {
@@ -93,7 +100,7 @@
     }
 
     #page-scrollbar-container {
-      width: 800px;
+      width: 880px;
       margin: 10px auto 0;
       text-align: center;
       position: relative;
@@ -142,7 +149,6 @@
 
   <div id="tooltip"></div>
 
-  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -157,49 +163,49 @@
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
+
     const turnAudio = document.getElementById("page-turn-audio");
     turnAudio.volume = 0.4;
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
+      const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
       scrollbar.max = totalPages;
 
       function renderPage(pageNumber) {
         return pdf.getPage(pageNumber).then(page => {
-          const scale = 2;
+          const scale = 1.5;
           const viewport = page.getViewport({ scale });
-
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
+
+          context.imageSmoothingEnabled = false;
           canvas.width = viewport.width;
           canvas.height = viewport.height;
 
-          return page.render({ canvasContext: context, viewport }).promise.then(() => {
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("page");
-            wrapper.setAttribute("data-page-number", pageNumber);
-            wrapper.appendChild(canvas);
-            return wrapper;
-          });
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+
+          return page.render(renderContext).promise.then(() => canvas);
         });
       }
 
       async function loadPages() {
-        const flipbook = document.getElementById("flipbook");
-
         for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
-          const pageElement = await renderPage(pageNumber);
-          flipbook.appendChild(pageElement);
+          const canvas = await renderPage(pageNumber);
+          const pageDiv = $('<div class="page">').append(canvas);
+          pageDiv.attr('data-page-number', pageNumber);
+          flipbook.append(pageDiv);
         }
 
         if (totalPages % 2 !== 0) {
-          const blankPage = document.createElement("div");
-          blankPage.classList.add("page");
-          flipbook.appendChild(blankPage);
+          flipbook.append($('<div class="page">'));
         }
 
-        $('#flipbook').turn({
+        flipbook.turn({
           width: 800,
           height: 500,
           autoCenter: true,
@@ -223,6 +229,7 @@
         document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
+
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
 
@@ -251,8 +258,8 @@
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
-
       let label = '';
+
       if (estimatedPage === 1) {
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
