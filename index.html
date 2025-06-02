@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue - Timothy Edwards Middle School</title>
+  <title>1.Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -22,9 +22,18 @@
     }
 
     #flipbook-container {
-      width: 880px;
+      width: 1100px;
       margin: 60px auto 0;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #school-logo {
+      width: 150px;
+      margin-right: 20px;
+      display: none;
     }
 
     #flipbook {
@@ -121,6 +130,7 @@
   </div>
 
   <div id="flipbook-container">
+    <img id="school-logo" src="school logo.png" alt="School Logo">
     <div id="flipbook"></div>
 
     <button id="prev-btn" class="nav-button">
@@ -138,14 +148,21 @@
 
   <div id="tooltip"></div>
 
-  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <script>
-    document.getElementById("loader").style.display = "block";
+    const logo = document.getElementById("school-logo");
+    const flipbook = $('#flipbook');
+
+    function updateLogoVisibility(page) {
+      logo.style.display = (page === 1) ? "block" : "none";
+    }
+
+    const turnAudio = document.getElementById("page-turn-audio");
+    turnAudio.volume = 0.4;
 
     const url = 'OOTB2025.pdf';
     const tooltip = document.getElementById("tooltip");
@@ -154,12 +171,8 @@
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
 
-    const turnAudio = document.getElementById("page-turn-audio");
-    turnAudio.volume = 0.4;
-
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
-      const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
       scrollbar.max = totalPages;
 
@@ -209,6 +222,7 @@
             },
             turned: function(event, page) {
               scrollbar.value = page;
+              updateLogoVisibility(page);
             }
           }
         });
@@ -217,17 +231,17 @@
         document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
+        updateLogoVisibility(1);
 
-        // Show scrollbar
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
 
         prevBtn.addEventListener('click', () => {
-          $("#flipbook").turn("previous");
+          flipbook.turn("previous");
         });
 
         nextBtn.addEventListener('click', () => {
-          $("#flipbook").turn("next");
+          flipbook.turn("next");
         });
       }
 
@@ -239,15 +253,21 @@
 
     scrollbar.addEventListener('input', function (e) {
       const page = parseInt(e.target.value);
-      $("#flipbook").turn("page", page);
+      flipbook.turn("page", page);
     });
 
-    // ✅ UPDATED TOOLTIP LOGIC
+    // Updated tooltip: no tooltip on back cover
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
+
+      // No tooltip for back cover
+      if (estimatedPage === maxPage) {
+        tooltip.style.display = "none";
+        return;
+      }
 
       let label = '';
 
@@ -255,8 +275,6 @@
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
         label = 'Introduction';
-      } else if (estimatedPage === maxPage) {
-        label = 'Back Cover';
       } else {
         const logicalPage = estimatedPage - 3;
         const left = logicalPage % 2 === 0 ? logicalPage - 1 : logicalPage;
