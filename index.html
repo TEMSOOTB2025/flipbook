@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue - Timothy Edwards Middle School</title>
+  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -29,7 +29,7 @@
       height: 610px;
     }
 
-    /* Flipbook positioned with left offset to match previous layout */
+    /* Flipbook positioned with left offset */
     #flipbook {
       width: 880px;
       height: 610px;
@@ -280,7 +280,7 @@
       }
 
       tooltip.style.left = (e.pageX - 20) + "px";
-      tooltip.style.top = (e.pageY - 40) + "px";
+      tooltip.style.top = (e.clientY - 40) + "px";
       tooltip.style.display = "block";
       tooltip.innerText = label;
     });
