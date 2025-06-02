@@ -11,6 +11,7 @@
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
+    // Set the PDF.js worker source
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
@@ -28,17 +29,7 @@
       height: 610px;
     }
 
-    /* Logo positioned under left half of flipbook, initially hidden */
-    #school-logo {
-      position: absolute;
-      width: 150px;
-      left: 50px;
-      top: 0;
-      z-index: 1;
-      display: none;
-    }
-
-    /* Flipbook fixed, no movement */
+    /* Flipbook positioned with left offset to match previous layout */
     #flipbook {
       width: 880px;
       height: 610px;
@@ -46,7 +37,7 @@
       left: 200px;
       top: 0;
       z-index: 2;
-      display: none;
+      display: none;  /* Hidden until PDF is rendered */
     }
 
     #loader {
@@ -136,9 +127,10 @@
   </div>
 
   <div id="flipbook-container">
-    <img id="school-logo" src="TEMSLogo.jpg" alt="School Logo">
+    <!-- Flipbook container: hidden until PDF pages are rendered -->
     <div id="flipbook"></div>
 
+    <!-- Navigation buttons: appear once flipbook is displayed -->
     <button id="prev-btn" class="nav-button">
       <img src="previous-arrow.png" alt="Previous">
     </button>
@@ -169,16 +161,7 @@
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-    const logo = document.getElementById("school-logo");
     const flipbookElem = document.getElementById("flipbook");
-
-    function updateLogoVisibility(page) {
-      if (page === 1) {
-        logo.style.display = "block";
-      } else {
-        logo.style.display = "none";
-      }
-    }
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -205,6 +188,7 @@
       }
 
       async function loadPages() {
+        // Render and append each PDF page as a canvas
         for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
           const canvas = await renderPage(pageNumber);
           const pageDiv = $('<div class="page">').append(canvas);
@@ -212,10 +196,12 @@
           flipbook.append(pageDiv);
         }
 
+        // If odd number of pages, append a blank page to keep pairing
         if (totalPages % 2 !== 0) {
           flipbook.append($('<div class="page">'));
         }
 
+        // Initialize turn.js flipbook
         flipbook.turn({
           width: 880,
           height: 610,
@@ -227,25 +213,28 @@
           duration: 1500,
           when: {
             turning: function(event, page, view) {
+              // Play page-turn sound at start of turn
               turnAudio.currentTime = 0;
               turnAudio.play().catch(() => {});
             },
             turned: function(event, page) {
+              // Update scrollbar when turn completes
               scrollbar.value = page;
-              updateLogoVisibility(page);
             }
           }
         });
 
+        // Hide loader and display flipbook
         document.getElementById("loader").style.display = "none";
         flipbookElem.style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
-        updateLogoVisibility(1); // show logo when fully loaded and on front cover
 
+        // Show scrollbar
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
 
+        // Attach navigation button events
         prevBtn.addEventListener('click', () => {
           flipbook.turn("previous");
         });
@@ -266,7 +255,7 @@
       $('#flipbook').turn("page", page);
     });
 
-    // No tooltip when hovering on the back cover (last page)
+    // No tooltip when hovering over back cover (last page)
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
