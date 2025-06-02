@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>1.Out of the Blue - Timothy Edwards Middle School</title>
+  <title>1. Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -25,23 +25,28 @@
       width: 1100px;
       margin: 60px auto 0;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: 610px;
     }
 
+    /* Logo on the left */
     #school-logo {
+      position: absolute;
       width: 150px;
-      margin-right: 20px;
-      display: none;
+      left: 50px;
+      top: 0;
+      z-index: 1;
     }
 
+    /* Flipbook default position when closed front cover */
     #flipbook {
       width: 880px;
       height: 610px;
-      margin: 0 auto;
-      position: relative;
+      position: absolute;
+      left: 200px;
+      top: 0;
+      z-index: 2;
       display: none;
+      transition: left 0.3s;
     }
 
     #loader {
@@ -77,13 +82,13 @@
     }
 
     #prev-btn {
-      left: -60px;
-      bottom: 0;
+      left: 140px;
+      bottom: 20px;
     }
 
     #next-btn {
-      right: -60px;
-      bottom: 0;
+      left: 1020px;
+      bottom: 20px;
     }
 
     .nav-button img {
@@ -102,6 +107,7 @@
       margin: 10px auto 0;
       text-align: center;
       position: relative;
+      left: 200px;
       display: none;
       visibility: hidden;
     }
@@ -154,13 +160,6 @@
   </audio>
 
   <script>
-    const logo = document.getElementById("school-logo");
-    const flipbook = $('#flipbook');
-
-    function updateLogoVisibility(page) {
-      logo.style.display = (page === 1) ? "block" : "none";
-    }
-
     const turnAudio = document.getElementById("page-turn-audio");
     turnAudio.volume = 0.4;
 
@@ -170,9 +169,12 @@
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
+    const logo = document.getElementById("school-logo");
+    const flipbookElem = document.getElementById("flipbook");
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
+      const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
       scrollbar.max = totalPages;
 
@@ -222,16 +224,21 @@
             },
             turned: function(event, page) {
               scrollbar.value = page;
-              updateLogoVisibility(page);
+              // If book is still on front cover (page 1), keep flipbook at left:200px so logo shows
+              // Once page > 1, move flipbook left to cover logo
+              if (page === 1) {
+                flipbookElem.style.left = '200px';
+              } else {
+                flipbookElem.style.left = '0px';
+              }
             }
           }
         });
 
         document.getElementById("loader").style.display = "none";
-        document.getElementById("flipbook").style.display = "block";
+        flipbookElem.style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
-        updateLogoVisibility(1);
 
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
@@ -253,24 +260,22 @@
 
     scrollbar.addEventListener('input', function (e) {
       const page = parseInt(e.target.value);
-      flipbook.turn("page", page);
+      $('#flipbook').turn("page", page);
     });
 
-    // Updated tooltip: no tooltip on back cover
+    // No tooltip when hovering on the back cover (last page)
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
 
-      // No tooltip for back cover
       if (estimatedPage === maxPage) {
         tooltip.style.display = "none";
         return;
       }
 
       let label = '';
-
       if (estimatedPage === 1) {
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
