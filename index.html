@@ -2,17 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OOB 2025 - Timothy Edwards Middle School</title>
+  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- Turn.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-  <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-  </script>
 
   <style>
     body {
@@ -22,14 +17,14 @@
     }
 
     #flipbook-container {
-      width: 760px;
+      width: 800px;
       margin: 60px auto 0;
       position: relative;
       z-index: 10;
     }
 
     #flipbook {
-      width: 380px;
+      width: 800px;
       height: 500px;
       margin: 0 auto;
       position: relative;
@@ -47,7 +42,7 @@
     }
 
     .page {
-      width: 380px;
+      width: 400px;
       height: 500px;
       background: white;
       overflow: hidden;
@@ -58,7 +53,7 @@
       pointer-events: auto;
     }
 
-    canvas {
+    canvas, img {
       width: 100%;
       height: 100%;
       image-rendering: crisp-edges;
@@ -100,7 +95,7 @@
     }
 
     #page-scrollbar-container {
-      width: 760px;
+      width: 880px;
       margin: 10px auto 0;
       text-align: center;
       position: relative;
@@ -157,96 +152,70 @@
   <script>
     document.getElementById("loader").style.display = "block";
 
-    const url = 'OOTB2025.pdf';
-    const tooltip = document.getElementById("tooltip");
+    const totalPages = 40; // change this to match actual page count
+    const flipbook = $('#flipbook');
     const scrollbar = document.getElementById("page-scrollbar");
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-
+    const tooltip = document.getElementById("tooltip");
     const turnAudio = document.getElementById("page-turn-audio");
     turnAudio.volume = 0.4;
 
-    const loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function(pdf) {
-      const flipbook = $('#flipbook');
-      const totalPages = pdf.numPages;
-      scrollbar.max = totalPages;
+    scrollbar.max = totalPages;
 
-      function renderPage(pageNumber) {
-        return pdf.getPage(pageNumber).then(page => {
-          const scale = 1;
-          const viewport = page.getViewport({ scale });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+    async function loadImagePages() {
+      for (let i = 1; i <= totalPages; i++) {
+        const img = document.createElement('img');
+        img.src = `pages/page-${i}.png`;
+        img.alt = `Page ${i}`;
 
-          context.imageSmoothingEnabled = false;
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
-
-          return page.render(renderContext).promise.then(() => canvas);
-        });
+        const pageDiv = $('<div class="page">').append(img);
+        pageDiv.attr('data-page-number', i);
+        flipbook.append(pageDiv);
       }
 
-      async function loadPages() {
-        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
-          const canvas = await renderPage(pageNumber);
-          const pageDiv = $('<div class="page">').append(canvas);
-          pageDiv.attr('data-page-number', pageNumber);
-          flipbook.append(pageDiv);
-        }
+      if (totalPages % 2 !== 0) {
+        flipbook.append($('<div class="page">'));
+      }
 
-        if (totalPages % 2 !== 0) {
-          flipbook.append($('<div class="page">'));
-        }
-
-        flipbook.turn({
-          width: 760,
-          height: 500,
-          autoCenter: true,
-          display: 'double',
-          acceleration: true,
-          gradients: true,
-          elevation: 300,
-          duration: 1500,
-          when: {
-            turning: function(event, page, view) {
-              turnAudio.currentTime = 0;
-              turnAudio.play().catch(() => {});
-            },
-            turned: function(event, page) {
-              scrollbar.value = page;
-            }
+      flipbook.turn({
+        width: 800,
+        height: 500,
+        autoCenter: true,
+        display: 'double',
+        acceleration: true,
+        gradients: true,
+        elevation: 300,
+        duration: 1500,
+        when: {
+          turning: function(event, page, view) {
+            turnAudio.currentTime = 0;
+            turnAudio.play().catch(() => {});
+          },
+          turned: function(event, page) {
+            scrollbar.value = page;
           }
-        });
+        }
+      });
 
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("flipbook").style.display = "block";
-        prevBtn.style.display = "block";
-        nextBtn.style.display = "block";
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("flipbook").style.display = "block";
+      prevBtn.style.display = "block";
+      nextBtn.style.display = "block";
+      scrollbarContainer.style.display = "block";
+      scrollbarContainer.style.visibility = "visible";
 
-        scrollbarContainer.style.display = "block";
-        scrollbarContainer.style.visibility = "visible";
+      prevBtn.addEventListener('click', () => {
+        $("#flipbook").turn("previous");
+      });
 
-        prevBtn.addEventListener('click', () => {
-          $("#flipbook").turn("previous");
-        });
+      nextBtn.addEventListener('click', () => {
+        $("#flipbook").turn("next");
+      });
+    }
 
-        nextBtn.addEventListener('click', () => {
-          $("#flipbook").turn("next");
-        });
-      }
-
-      loadPages();
-    }).catch(error => {
-      console.error('Error loading PDF:', error);
-      alert('Failed to load PDF. Please make sure your file is uploaded and the name matches.');
-    });
+    loadImagePages();
 
     scrollbar.addEventListener('input', function (e) {
       const page = parseInt(e.target.value);
