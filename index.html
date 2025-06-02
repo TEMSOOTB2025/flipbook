@@ -1,18 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OOTB 2025 - Timothy Edwards Middle School</title>
+  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
   <!-- Turn.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+  </script>
 
   <style>
     body {
@@ -53,6 +53,8 @@
 
     canvas {
       display: block;
+      max-width: 100%;
+      max-height: 100%;
       width: 100% !important;
       height: 100% !important;
       image-rendering: optimizeQuality;
@@ -140,15 +142,11 @@
 
   <div id="tooltip"></div>
 
+  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-
-  <!-- PDF.js worker must be set AFTER the library loads -->
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-  </script>
 
   <script>
     document.getElementById("loader").style.display = "block";
@@ -164,7 +162,6 @@
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
-      const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
       scrollbar.max = totalPages;
 
@@ -172,34 +169,37 @@
         return pdf.getPage(pageNumber).then(page => {
           const scale = 2;
           const viewport = page.getViewport({ scale });
+
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
-
           canvas.width = viewport.width;
           canvas.height = viewport.height;
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
-
-          return page.render(renderContext).promise.then(() => canvas);
+          return page.render({ canvasContext: context, viewport }).promise.then(() => {
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("page");
+            wrapper.setAttribute("data-page-number", pageNumber);
+            wrapper.appendChild(canvas);
+            return wrapper;
+          });
         });
       }
 
       async function loadPages() {
+        const flipbook = document.getElementById("flipbook");
+
         for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
-          const canvas = await renderPage(pageNumber);
-          const pageDiv = $('<div class="page">').append(canvas);
-          pageDiv.attr('data-page-number', pageNumber);
-          flipbook.append(pageDiv);
+          const pageElement = await renderPage(pageNumber);
+          flipbook.appendChild(pageElement);
         }
 
         if (totalPages % 2 !== 0) {
-          flipbook.append($('<div class="page">'));
+          const blankPage = document.createElement("div");
+          blankPage.classList.add("page");
+          flipbook.appendChild(blankPage);
         }
 
-        flipbook.turn({
+        $('#flipbook').turn({
           width: 800,
           height: 500,
           autoCenter: true,
