@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>1. Out of the Blue - Timothy Edwards Middle School</title>
+  <title>Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -28,16 +28,17 @@
       height: 610px;
     }
 
-    /* Logo on the left */
+    /* Logo positioned under left half of flipbook, initially hidden */
     #school-logo {
       position: absolute;
       width: 150px;
       left: 50px;
       top: 0;
       z-index: 1;
+      display: none;
     }
 
-    /* Flipbook default position when closed front cover */
+    /* Flipbook fixed, no movement */
     #flipbook {
       width: 880px;
       height: 610px;
@@ -46,7 +47,6 @@
       top: 0;
       z-index: 2;
       display: none;
-      transition: left 0.3s;
     }
 
     #loader {
@@ -172,6 +172,14 @@
     const logo = document.getElementById("school-logo");
     const flipbookElem = document.getElementById("flipbook");
 
+    function updateLogoVisibility(page) {
+      if (page === 1) {
+        logo.style.display = "block";
+      } else {
+        logo.style.display = "none";
+      }
+    }
+
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
       const flipbook = $('#flipbook');
@@ -224,13 +232,7 @@
             },
             turned: function(event, page) {
               scrollbar.value = page;
-              // If book is still on front cover (page 1), keep flipbook at left:200px so logo shows
-              // Once page > 1, move flipbook left to cover logo
-              if (page === 1) {
-                flipbookElem.style.left = '200px';
-              } else {
-                flipbookElem.style.left = '0px';
-              }
+              updateLogoVisibility(page);
             }
           }
         });
@@ -239,6 +241,7 @@
         flipbookElem.style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
+        updateLogoVisibility(1); // show logo when fully loaded and on front cover
 
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
