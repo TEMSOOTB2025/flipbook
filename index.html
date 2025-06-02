@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  <title>Out of the Blue - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,7 +11,6 @@
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    // Set the PDF.js worker source
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
@@ -23,21 +22,17 @@
     }
 
     #flipbook-container {
-      width: 1100px;
+      width: 880px;
       margin: 60px auto 0;
       position: relative;
-      height: 610px;
     }
 
-    /* Flipbook positioned with left offset */
     #flipbook {
       width: 880px;
       height: 610px;
-      position: absolute;
-      left: 200px;
-      top: 0;
-      z-index: 2;
-      display: none;  /* Hidden until PDF is rendered */
+      margin: 0 auto;
+      position: relative;
+      display: none;
     }
 
     #loader {
@@ -73,13 +68,13 @@
     }
 
     #prev-btn {
-      left: 140px;
-      bottom: 20px;
+      left: -60px;
+      bottom: 0;
     }
 
     #next-btn {
-      left: 1020px;
-      bottom: 20px;
+      right: -60px;
+      bottom: 0;
     }
 
     .nav-button img {
@@ -98,7 +93,6 @@
       margin: 10px auto 0;
       text-align: center;
       position: relative;
-      left: 200px;
       display: none;
       visibility: hidden;
     }
@@ -127,10 +121,8 @@
   </div>
 
   <div id="flipbook-container">
-    <!-- Flipbook container: hidden until PDF pages are rendered -->
     <div id="flipbook"></div>
 
-    <!-- Navigation buttons: appear once flipbook is displayed -->
     <button id="prev-btn" class="nav-button">
       <img src="previous-arrow.png" alt="Previous">
     </button>
@@ -146,14 +138,14 @@
 
   <div id="tooltip"></div>
 
+  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 
   <script>
-    const turnAudio = document.getElementById("page-turn-audio");
-    turnAudio.volume = 0.4;
+    document.getElementById("loader").style.display = "block";
 
     const url = 'OOTB2025.pdf';
     const tooltip = document.getElementById("tooltip");
@@ -161,7 +153,9 @@
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-    const flipbookElem = document.getElementById("flipbook");
+
+    const turnAudio = document.getElementById("page-turn-audio");
+    turnAudio.volume = 0.4;
 
     const loadingTask = pdfjsLib.getDocument(url);
     loadingTask.promise.then(function(pdf) {
@@ -188,7 +182,6 @@
       }
 
       async function loadPages() {
-        // Render and append each PDF page as a canvas
         for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
           const canvas = await renderPage(pageNumber);
           const pageDiv = $('<div class="page">').append(canvas);
@@ -196,12 +189,10 @@
           flipbook.append(pageDiv);
         }
 
-        // If odd number of pages, append a blank page to keep pairing
         if (totalPages % 2 !== 0) {
           flipbook.append($('<div class="page">'));
         }
 
-        // Initialize turn.js flipbook
         flipbook.turn({
           width: 880,
           height: 610,
@@ -213,20 +204,17 @@
           duration: 1500,
           when: {
             turning: function(event, page, view) {
-              // Play page-turn sound at start of turn
               turnAudio.currentTime = 0;
               turnAudio.play().catch(() => {});
             },
             turned: function(event, page) {
-              // Update scrollbar when turn completes
               scrollbar.value = page;
             }
           }
         });
 
-        // Hide loader and display flipbook
         document.getElementById("loader").style.display = "none";
-        flipbookElem.style.display = "block";
+        document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
 
@@ -234,13 +222,12 @@
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
 
-        // Attach navigation button events
         prevBtn.addEventListener('click', () => {
-          flipbook.turn("previous");
+          $("#flipbook").turn("previous");
         });
 
         nextBtn.addEventListener('click', () => {
-          flipbook.turn("next");
+          $("#flipbook").turn("next");
         });
       }
 
@@ -252,26 +239,24 @@
 
     scrollbar.addEventListener('input', function (e) {
       const page = parseInt(e.target.value);
-      $('#flipbook').turn("page", page);
+      $("#flipbook").turn("page", page);
     });
 
-    // No tooltip when hovering over back cover (last page)
+    // ✅ UPDATED TOOLTIP LOGIC
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
 
-      if (estimatedPage === maxPage) {
-        tooltip.style.display = "none";
-        return;
-      }
-
       let label = '';
+
       if (estimatedPage === 1) {
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
         label = 'Introduction';
+      } else if (estimatedPage === maxPage) {
+        label = 'Back Cover';
       } else {
         const logicalPage = estimatedPage - 3;
         const left = logicalPage % 2 === 0 ? logicalPage - 1 : logicalPage;
@@ -280,7 +265,7 @@
       }
 
       tooltip.style.left = (e.pageX - 20) + "px";
-      tooltip.style.top = (e.clientY - 40) + "px";
+      tooltip.style.top = (e.pageY - 40) + "px";
       tooltip.style.display = "block";
       tooltip.innerText = label;
     });
