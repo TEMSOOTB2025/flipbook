@@ -25,7 +25,6 @@
       width: 800px;
       margin: 60px auto 0;
       position: relative;
-      z-index: 10;
     }
 
     #flipbook {
@@ -33,10 +32,7 @@
       height: 500px;
       margin: 0 auto;
       position: relative;
-      z-index: 10;
       display: none;
-      touch-action: manipulation;
-      pointer-events: auto;
     }
 
     #loader {
@@ -53,15 +49,14 @@
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
       position: relative;
-      z-index: 1;
-      touch-action: manipulation;
-      pointer-events: auto;
     }
 
     canvas {
       width: 100%;
       height: 100%;
-      image-rendering: pixelated;
+      image-rendering: optimizeQuality;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .nav-button {
@@ -97,7 +92,7 @@
     }
 
     #page-scrollbar-container {
-      width: 880px;
+      width: 800px; /* match flipbook width */
       margin: 10px auto 0;
       text-align: center;
       position: relative;
@@ -106,7 +101,7 @@
     }
 
     #page-scrollbar {
-      width: 100%;
+      width: 100%; /* take full container width */
     }
 
     #tooltip {
@@ -172,13 +167,10 @@
 
       function renderPage(pageNumber) {
         return pdf.getPage(pageNumber).then(page => {
-          const scale = 1.5;
+          const scale = 2; // increased for better clarity
           const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
-
-          // Disable image smoothing for crisper text
-          context.imageSmoothingEnabled = false;
           canvas.width = viewport.width;
           canvas.height = viewport.height;
 
@@ -256,6 +248,7 @@
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
+
       let label = '';
 
       if (estimatedPage === 1) {
