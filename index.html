@@ -152,7 +152,7 @@
   <script>
     document.getElementById("loader").style.display = "block";
 
-    const totalPages = 40; // change this to match actual page count
+    const totalPages = 158; // change this to match actual page count
     const flipbook = $('#flipbook');
     const scrollbar = document.getElementById("page-scrollbar");
     const scrollbarContainer = document.getElementById("page-scrollbar-container");
@@ -167,7 +167,7 @@
     async function loadImagePages() {
       for (let i = 1; i <= totalPages; i++) {
         const img = document.createElement('img');
-        img.src = `pages/page-${i}.png`;
+        img.src = `pages/Page_${i}.png`;
         img.alt = `Page ${i}`;
 
         const pageDiv = $('<div class="page">').append(img);
