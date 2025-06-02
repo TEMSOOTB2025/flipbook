@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue - Timothy Edwards Middle School</title>
+  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,28 +11,40 @@
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
+    // PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   </script>
 
   <style>
-    body {
+    /* Prevent horizontal scrolling but allow vertical scroll if needed */
+    html, body {
       margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    body {
       background: #89CFF0;
       font-family: sans-serif;
     }
 
+    /* Flipbook container scales to viewport up to 880px */
     #flipbook-container {
-      width: 880px;
+      width: 100%;
+      max-width: 880px;
       margin: 60px auto 0;
       position: relative;
     }
 
+    /* Flipbook scales proportionally, never exceeding 880×610 */
     #flipbook {
-      width: 880px;
-      height: 610px;
+      width: 100%;
+      max-width: 880px;
+      height: calc((100% * 610) / 880);
+      max-height: 610px;
       margin: 0 auto;
       position: relative;
-      display: none;
+      display: none; /* hidden until PDF renders */
     }
 
     #loader {
@@ -64,7 +76,7 @@
       z-index: 1000;
       border-radius: 8px;
       padding: 5px;
-      display: none;
+      display: none; /* show after flipbook loads */
     }
 
     #prev-btn {
@@ -88,12 +100,14 @@
       opacity: 1;
     }
 
+    /* Scrollbar container scales up to 880px */
     #page-scrollbar-container {
-      width: 880px;
+      width: 100%;
+      max-width: 880px;
       margin: 10px auto 0;
       text-align: center;
       position: relative;
-      display: none;
+      display: none; /* show after flipbook loads */
       visibility: hidden;
     }
 
@@ -157,8 +171,7 @@
     const turnAudio = document.getElementById("page-turn-audio");
     turnAudio.volume = 0.4;
 
-    const loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function(pdf) {
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
       const flipbook = $('#flipbook');
       const totalPages = pdf.numPages;
       scrollbar.max = totalPages;
@@ -242,30 +255,32 @@
       $("#flipbook").turn("page", page);
     });
 
-    // ✅ UPDATED TOOLTIP LOGIC
+    // Tooltip logic: hide when hovering over back cover
     scrollbar.addEventListener('mousemove', function (e) {
       const rect = scrollbar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
 
-      let label = '';
+      if (estimatedPage === maxPage) {
+        tooltip.style.display = "none";
+        return;
+      }
 
+      let label = '';
       if (estimatedPage === 1) {
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
         label = 'Introduction';
-      } else if (estimatedPage === maxPage) {
-        label = 'Back Cover';
       } else {
         const logicalPage = estimatedPage - 3;
-        const left = logicalPage % 2 === 0 ? logicalPage - 1 : logicalPage;
-        const right = left + 1;
-        label = `Pages ${left}–${right}`;
+        const leftPage = logicalPage % 2 === 0 ? logicalPage - 1 : logicalPage;
+        const rightPage = leftPage + 1;
+        label = `Pages ${leftPage}–${rightPage}`;
       }
 
       tooltip.style.left = (e.pageX - 20) + "px";
-      tooltip.style.top = (e.pageY - 40) + "px";
+      tooltip.style.top = (e.clientY - 40) + "px";
       tooltip.style.display = "block";
       tooltip.innerText = label;
     });
