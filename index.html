@@ -1,18 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  <title>OOTB 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <!-- Turn.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
   <!-- PDF.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-  </script>
 
   <style>
     body {
@@ -53,6 +53,8 @@
 
     canvas {
       display: block;
+      width: 100% !important;
+      height: 100% !important;
       image-rendering: optimizeQuality;
     }
 
@@ -138,11 +140,15 @@
 
   <div id="tooltip"></div>
 
-  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
+
+  <!-- PDF.js worker must be set AFTER the library loads -->
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+  </script>
 
   <script>
     document.getElementById("loader").style.display = "block";
@@ -164,16 +170,13 @@
 
       function renderPage(pageNumber) {
         return pdf.getPage(pageNumber).then(page => {
-          const scale = 1;
+          const scale = 2;
           const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
 
           canvas.width = viewport.width;
           canvas.height = viewport.height;
-
-          canvas.style.width = (viewport.width / scale) + 'px';
-          canvas.style.height = (viewport.height / scale) + 'px';
 
           const renderContext = {
             canvasContext: context,
