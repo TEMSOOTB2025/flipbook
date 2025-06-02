@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  <title>OOB 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -175,7 +175,7 @@
 
       function renderPage(pageNumber) {
         return pdf.getPage(pageNumber).then(page => {
-          const scale = 1.5;
+          const scale = 1;
           const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
