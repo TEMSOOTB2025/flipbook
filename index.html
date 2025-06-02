@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  <title>OOTB 2025 - Timothy Edwards Middle School</title>
 
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -25,6 +25,7 @@
       width: 800px;
       margin: 60px auto 0;
       position: relative;
+      z-index: 10;
     }
 
     #flipbook {
@@ -32,7 +33,10 @@
       height: 500px;
       margin: 0 auto;
       position: relative;
+      z-index: 10;
       display: none;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
 
     #loader {
@@ -49,12 +53,15 @@
       overflow: hidden;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
       position: relative;
+      z-index: 1;
+      touch-action: manipulation;
+      pointer-events: auto;
     }
 
     canvas {
-      display: block;
+      width: 100%;
+      height: 100%;
       image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
 
     .nav-button {
@@ -139,7 +146,6 @@
 
   <div id="tooltip"></div>
 
-  <!-- Audio element for page turn -->
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -169,13 +175,12 @@
           const scale = 1.5;
           const viewport = page.getViewport({ scale });
           const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d', { alpha: false });
+          const context = canvas.getContext('2d');
 
+          // Disable image smoothing for crisper text
+          context.imageSmoothingEnabled = false;
           canvas.width = viewport.width;
           canvas.height = viewport.height;
-          canvas.style.width = `${viewport.width}px`;
-          canvas.style.height = `${viewport.height}px`;
-          context.imageSmoothingEnabled = false;
 
           const renderContext = {
             canvasContext: context,
@@ -222,6 +227,7 @@
         document.getElementById("flipbook").style.display = "block";
         prevBtn.style.display = "block";
         nextBtn.style.display = "block";
+
         scrollbarContainer.style.display = "block";
         scrollbarContainer.style.visibility = "visible";
 
@@ -250,8 +256,8 @@
       const percent = (e.clientX - rect.left) / rect.width;
       const estimatedPage = Math.round(percent * (scrollbar.max - 1)) + 1;
       const maxPage = parseInt(scrollbar.max);
-
       let label = '';
+
       if (estimatedPage === 1) {
         label = 'Front Cover';
       } else if (estimatedPage === 2 || estimatedPage === 3) {
