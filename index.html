@@ -47,16 +47,22 @@
       line-height: 1.3;
     }
 
-    #flipbook-container {
-      width: 760px;
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-left:30px;
 
-    }
+#flipbook-container {
+  width: 760px; /* Essential: sets the container width */
+  display: flex; /* Essential: enables flex layout */
+  flex-direction: column; /* Essential: stacks children vertically */
+  align-items: center; /* Essential: centers children horizontally */
+
+  /* Optional: only needed if you use absolute positioning inside */
+  /* position: relative; */
+
+  /* Optional: only needed if you need to control stacking order */
+  /* z-index: 10; */
+
+  /* Optional: controls spacing from the left */
+  /* margin-left: 30px; */
+}
 
     #flipbook-wrapper {
       width: 760px;
