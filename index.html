@@ -24,7 +24,7 @@
 
     #logo-caption {
       width: 180px;
-      margin-right: 1%px;
+      margin-right: 1%;
      margin-left: 2%;
 margin-top: 2%;
 
@@ -204,71 +204,165 @@ margin-top: 2%;
   </style>
 </head>
 <body>
-  <div id="loader">
-    <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
-    <p>Loading flipbook, please wait...</p>
-  </div>
+<div id="loader">
+  <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="60">
+  <p>Loading flipbook, please wait...</p>
+</div>
 
-  <div id="main-layout">
-    <div id="logo-caption">
-      <img src="TEMSLogo.png" alt="Timothy Edwards Logo">
-      <div class="caption">
-        <b>TIMOTHY EDWARDS</b> Middle School<br><br>
-        <div class="address">
-          <i>100 Arnold Way<br>South Windsor, CT 06074</i>
-        </div>
+<div id="main-layout">
+  <div id="logo-caption">
+    <img src="TEMSLogo.png" alt="Timothy Edwards Logo">
+    <div class="caption">
+      <b>TIMOTHY EDWARDS</b> Middle School<br><br>
+      <div class="address">
+        <i>100 Arnold Way<br>South Windsor, CT 06074</i>
       </div>
     </div>
+  </div>
 
-    <div id="flipbook-display-area">
-      <div id="flipbook-wrapper">
-          <div class="tooltip-wrapper" style="bottom: 30%; left: 0;">
-          <button id="prev-btn" class="nav-button">
-            <img src="previous-arrow.png" alt="Previous">
-          </button>
-          <div class="custom-tooltip">Previous Page</div>
-        </div>
-
-        <div class="tooltip-wrapper" style="bottom: 20%; left: 0;" >
-          <button id="first-page-btn" class="nav-button">
-            <img src="first.png" alt="First Page">
-          </button>
-          <div class="custom-tooltip">First Page</div>
-        </div>
-
-        <div id="flipbook"></div>
-
-        <div class="tooltip-wrapper" style="bottom: 30%; right: 7.25%;">
-          <button id="next-btn" class="nav-button">
-            <img src="next-arrow.png" alt="Next">
-          </button>
-          <div class="custom-tooltip">Next Page</div>
-        </div>
-
-        <div class="tooltip-wrapper" style="bottom: 20%; right: 7.25%;">
-          <button id="last-page-btn" class="nav-button">
-            <img src="last.png" alt="Last Page">
-          </button>
-          <div class="custom-tooltip">Last Page</div>
-        </div>
+  <div id="flipbook-display-area">
+    <div id="flipbook-wrapper"> <!-- Ensure relative positioning -->
+      
+      <!-- Navigation Buttons -->
+      <div class="tooltip-wrapper" style="bottom: 30%; left: 0;">
+        <button id="prev-btn" class="nav-button">
+          <img src="previous-arrow.png" alt="Previous">
+        </button>
+        <div class="custom-tooltip">Previous Page</div>
       </div>
+
+      <div class="tooltip-wrapper" style="bottom: 20%; left: 0;">
+        <button id="first-page-btn" class="nav-button">
+          <img src="first.png" alt="First Page">
+        </button>
+        <div class="custom-tooltip">First Page</div>
+      </div>
+
+      <!-- Flipbook -->
+      <div id="flipbook"></div>
+
+      <div class="tooltip-wrapper" style="bottom: 30%; right: 7.25%;">
+        <button id="next-btn" class="nav-button">
+          <img src="next-arrow.png" alt="Next">
+        </button>
+        <div class="custom-tooltip">Next Page</div>
+      </div>
+
+      <div class="tooltip-wrapper" style="bottom: 20%; right: 7.25%;">
+        <button id="last-page-btn" class="nav-button">
+          <img src="last.png" alt="Last Page">
+        </button>
+        <div class="custom-tooltip">Last Page</div>
+      </div>
+
+      <!-- Page 23 Overlay -->
+     
+
+    </div>
 	
-
-
-      <div id="page-scrollbar-container">
-        <input type="range" id="page-scrollbar" min="1" max="1" value="1">
-      </div>
+     <!-- Scrollbar -->
+    <div id="page-scrollbar-container">
+      <input type="range" id="page-scrollbar" min="1" max="1" value="1">
     </div>
   </div>
+</div>
 
-  <div id="tooltip"></div>
-  <div id="scrollbar-tooltip"></div>
+<div id="tooltip"></div>
+<div id="scrollbar-tooltip"></div>
 
   <audio id="page-turn-audio" preload="auto">
     <source src="turn.mp3" type="audio/mpeg">
   </audio>
 
-  <script>
+<script>
+  $(document).ready(function () {
+    const $flipbook = $("#flipbook");
+    const $scrollbar = $("#page-scrollbar");
+    const $scrollbarContainer = $("#page-scrollbar-container");
+    const $prev = $("#prev-btn");
+    const $next = $("#next-btn");
+    const $loader = $("#loader");
+
+    const totalPages = 158;
+    const initialPages = 10;
+    const loadedPages = new Set();
+
+function loadPage(i) {
+  if (!loadedPages.has(i)) {
+    let $page;
+
+    if (i === 23) {
+      $page = $(`
+        <div class="page" style="position: relative;">
+          <img src="pages/Page_${i}.png" width="100%" height="100%">
+          <div id="page23-overlay3" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20000;
+            pointer-events: none;
+          ">
+            <a href="https://drive.google.com/file/d/1ukrzvGwh8u7RrXyfEXSG-AL19t8D9979/view?" target="_blank"
+               style="position: absolute; top: 80%; left: 50%; transform: translateX(-50%);
+                      background-color: white; color: #4682B4; font-size: 10px;
+                      padding: 4px 8px; border-radius: 4px; z-index: 20001;
+                      text-decoration: none; pointer-events: auto;">
+              <u>Link to Music</u>
+            </a>
+          </div>
+	 <div id="page23-overlay" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 20000;
+        pointer-events: none;
+      ">
+        <a href="https://drive.google.com/file/d/1VzIjx-NlTOM8Q88kZivzCrHhYHxrjAyd/view" target="_blank"
+           style="position: absolute; top: 58%; left: 50%; transform: translateX(-50%);
+                  background-color: white; color: #4682B4; font-size: 10px;
+                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
+                  text-decoration: none; pointer-events: auto;">
+             <u>Link to Music 2</u>
+        </a>
+      </div>
+ <div id="page23-overlay2" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 20000;
+        pointer-events: none;
+      ">
+        <a href="https://drive.google.com/file/d/1VzIjx-NlTOM8Q88kZivzCrHhYHxrjAyd/view" target="_blank"
+           style="position: absolute; top: 29%; left: 50%; transform: translateX(-50%);
+                  background-color: white; color: #4682B4; font-size: 10px;
+                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
+                  text-decoration: none; pointer-events: auto;">
+              <u>Link to Music</u>
+        </a>
+      </div>
+        </div>
+      `);
+    } else {
+      //alert(i); // Optional: for debugging
+      $page = $(`
+        <div class="page">
+          <img src="pages/Page_${i}.png" width="100%" height="100%">
+        </div>
+      `);
+    }
+
+    $flipbook.turn("addPage", $page, i);
+    loadedPages.add(i);
+  }
+}
+
+
     function getPageLabel(page, totalPages) {
       if (page === 1) return "Front Cover";
       if (page === 2 || page === 3) return "Introduction";
@@ -278,98 +372,98 @@ margin-top: 2%;
       return `Page ${left}-${right}`;
     }
 
-    $(function () {
-      const $flipbook = $("#flipbook");
-      const $scrollbar = $("#page-scrollbar");
-      const $scrollbarContainer = $("#page-scrollbar-container");
-      const $prev = $("#prev-btn");
-      const $next = $("#next-btn");
-      const $loader = $("#loader");
-
-      const totalPages = 158;
-      const initialPages = 10;
-      const loadedPages = new Set();
-
-      function loadPage(i) {
-        if (!loadedPages.has(i)) {
-          const $page = $('<div class="page"><img src="pages/Page_' + i + '.png" width="100%" height="100%"></div>');
-          $flipbook.turn("addPage", $page, i);
-          loadedPages.add(i);
-        }
-      }
-
-      const wrapperWidth = $flipbook.width();
+     const wrapperWidth = $flipbook.width();
       const wrapperHeight = $flipbook.height();
-      $flipbook.turn({
-        width: wrapperWidth,
-        height: wrapperHeight,
-        autoCenter: true,
-        elevation: 50,
-        gradients: true,
-        pages: totalPages,
-        when: {
-          turning: function (event, page) {
-            $("#page-turn-audio")[0].play();
-            $scrollbar.val(page);
-            for (let i = page - 1; i <= page + 1; i++) {
-              if (i >= 1 && i <= totalPages) {
-                loadPage(i);
-              }
+
+    $flipbook.turn({
+      width: wrapperWidth,
+      height: wrapperHeight,
+      autoCenter: true,
+      elevation: 50,
+      gradients: true,
+      pages: totalPages,
+      when: {
+        turning: function (event, page) {
+          $("#page-turn-audio")[0].play();
+          $scrollbar.val(page);
+          for (let i = page - 1; i <= page + 1; i++) {
+            if (i >= 1 && i <= totalPages) {
+              loadPage(i);
             }
-          },
+          }
+        },
+        turned: function (event, page) {
+	
+          if (page == 22 || page ==23) {
+                //    $('#page23-overlay').show();
+
+const overlay = document.getElementById('page23-overlay');
+if (overlay) {
+//alert(overlay);
+document.getElementById('page23-overlay').show();
+document.getElementById('page23-overlay2').show();
+  overlay.show();
+}
+          } else {
+		//  $('#page23-overlay').hide();
+		//$('#page23-overlay').hide();
+
+          }
         }
-      });
-
-      for (let i = 1; i <= initialPages; i++) {
-        loadPage(i);
       }
-
-      $scrollbar.attr("max", totalPages);
-      $scrollbar.on("input", function (e) {
-        const page = parseInt($(this).val());
-        const label = getPageLabel(page, totalPages);
-        const tooltip = $("#scrollbar-tooltip");
-
-        const offset = $(this).offset();
-        const width = $(this).width();
-        const percent = (page - 1) / (totalPages - 1);
-        const left = offset.left + percent * width;
-
-        tooltip.text(label)
-               .css({ top: offset.top - 30, left: left - 20 })
-               .show();
-
-        $flipbook.turn("page", page);
-      });
-
-      $scrollbar.on("mouseleave", function () {
-        $("#scrollbar-tooltip").hide();
-      });
-
-      $prev.on("click", function () {
-        $flipbook.turn("previous");
-      });
-
-      $next.on("click", function () {
-        $flipbook.turn("next");
-      });
-
-      $("#first-page-btn").on("click", function () {
-        $flipbook.turn("page", 1);
-      });
-
-      $("#last-page-btn").on("click", function () {
-        $flipbook.turn("page", totalPages);
-      });
-
-      $flipbook.show();
-      $loader.hide();
-      $scrollbarContainer.css("visibility", "visible").show();
-      $prev.show();
-      $next.show();
-      $("#first-page-btn").show();
-      $("#last-page-btn").show();
     });
-  </script>
+
+    for (let i = 1; i <= initialPages; i++) {
+      loadPage(i);
+    }
+
+    $scrollbar.attr("max", totalPages);
+    $scrollbar.on("input", function () {
+      const page = parseInt($(this).val());
+      const label = getPageLabel(page, totalPages);
+      const tooltip = $("#scrollbar-tooltip");
+
+      const offset = $(this).offset();
+      const width = $(this).width();
+      const percent = (page - 1) / (totalPages - 1);
+      const left = offset.left + percent * width;
+
+      tooltip.text(label)
+             .css({ top: offset.top - 30, left: left - 20 })
+             .show();
+
+      $flipbook.turn("page", page);
+    });
+
+    $scrollbar.on("mouseleave", function () {
+      $("#scrollbar-tooltip").hide();
+    });
+
+    $prev.on("click", function () {
+      $flipbook.turn("previous");
+    });
+
+    $next.on("click", function () {
+      $flipbook.turn("next");
+    });
+
+    $("#first-page-btn").on("click", function () {
+      $flipbook.turn("page", 1);
+    });
+
+    $("#last-page-btn").on("click", function () {
+      $flipbook.turn("page", totalPages);
+    });
+
+    $flipbook.show();
+    $loader.hide();
+    $scrollbarContainer.css("visibility", "visible").show();
+    $prev.show();
+    $next.show();
+    $("#first-page-btn").show();
+    $("#last-page-btn").show();
+  });
+</script>
+
 </body>
 </html>
