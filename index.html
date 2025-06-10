@@ -284,15 +284,17 @@ margin-top: 2%;
     const $loader = $("#loader");
 
     const totalPages = 158;
-    const initialPages = 10;
+    const initialPages = 11;
     const loadedPages = new Set();
 
 function loadPage(i) {
+
   if (!loadedPages.has(i)) {
-    let $page;
+	//alert("actual load"+i);
+	    let $page;
 
     if (i === 23) {
-	    alert(i);
+	
       $page = $(`
         <div class="page" style="position: relative;">
           <img src="pages/Page_${i}.png" width="100%" height="100%">
@@ -377,6 +379,7 @@ function loadPage(i) {
       const wrapperHeight = $flipbook.height();
 
     $flipbook.turn({
+
       width: wrapperWidth,
       height: wrapperHeight,
       autoCenter: true,
@@ -387,34 +390,34 @@ function loadPage(i) {
         turning: function (event, page) {
           $("#page-turn-audio")[0].play();
           $scrollbar.val(page);
-          for (let i = page - 1; i <= page + 1; i++) {
-            if (i >= 1 && i <= totalPages) {
+	 if(page>11)
+	{
+          for (let i = page-5; i <= page + 5; i++) {
+		
+            if (i <= totalPages) {
+		//alert("Turn useful"+i);
+
               loadPage(i);
             }
           }
-        },
-        turned: function (event, page) {
-	
-          if (page == 22 || page ==23) {
-                //    $('#page23-overlay').show();
-
-const overlay = document.getElementById('page23-overlay');
-if (overlay) {
-//alert(overlay);
-document.getElementById('page23-overlay').show();
-document.getElementById('page23-overlay2').show();
-  overlay.show();
-}
-          } else {
-		//  $('#page23-overlay').hide();
-		//$('#page23-overlay').hide();
-
-          }
-        }
+	}
+	else
+	{
+			 for (let i = page; i <= page + 1; i++) {
+   if (i >= 1 && i <= totalPages) 
+		{
+		    	
+		              loadPage(i);
+         }
       }
+
+	}     
+	},
+        }
     });
 
     for (let i = 1; i <= initialPages; i++) {
+	//alert("X");
       loadPage(i);
     }
 
@@ -441,7 +444,9 @@ document.getElementById('page23-overlay2').show();
     });
 
     $prev.on("click", function () {
-      $flipbook.turn("previous");
+     $flipbook.turn("previous");
+
+
     });
 
     $next.on("click", function () {
