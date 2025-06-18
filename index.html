@@ -2,626 +2,505 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-	
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  	<title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
+  	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  	<style>
+	    body {
+	      margin: 0;
+	      padding: 0;
+	      overflow-x: hidden;
+	      background: url('background.png') no-repeat;
+	      background-size: cover;
+	    }
 
-  <title>Out of the Blue 2025 - Timothy Edwards Middle School</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      background: url('background.png') no-repeat;
-      background-size: cover;
+	    #logo-caption {
+	      	width: 100%;
+	        overflow: hidden;
+	    }
 
+    	#logo-caption img {
+      		width: 100%;
+            	object-fit: cover; /* Ensures the image scales and crops to fit */
+      		display: block;
+    	}	
 
-    }
+	#main-layout {
+            	align-items:center;
+		visibility: hidden;
+      		box-sizing: border-box;
+  		opacity: 0;
+  		transition: opacity 0.5s ease-in;
+		width:100%;
+		height: 100%; /* or any fixed height */
+  		overflow: auto; /* or scroll */
+    	}
 
-    #logo-caption {
-      width: 100%;
-           overflow: hidden;
-    }
+	#main-layout:fullscreen {
+  		overflow-y: auto;
+		width:100%;
+		height: 100%; /* or any fixed height */
+ 		background: url('background.png') no-repeat;
+      		background-size: cover;
+	}
 
-    #logo-caption img {
-      width: 100%;
-            object-fit: cover; /* Ensures the image scales and crops to fit */
-      display: block;
-    }
+	@media (orientation: portrait) {
+	  #flipbook-wrapper {
+		    width: 100%;
+		    height: auto;
+		    aspect-ratio: 10 / 16;
+		    touch-action: manipulation;
+		    position: relative;
+		    display: flex;
+		    justify-content: center;
+		    align-items: flex-end; /* Optional: vertically center content */
+		  }
+	}
 
-
-    #main-layout {
-            align-items:center;
-	    visibility: hidden;
-      box-sizing: border-box;
-
-  opacity: 0;
-  transition: opacity 0.5s ease-in;
-
-width:100%;
-height: 100%; /* or any fixed height */
-  overflow: auto; /* or scroll */
-
-    }
-
- #main-layout:fullscreen {
-  overflow-y: auto;
-
-width:100%;
-height: 100%; /* or any fixed height */
-
- background: url('background.png') no-repeat;
-      background-size: cover;
-
-
- }
-
-
-
-@media (orientation: portrait) {
-  #flipbook-wrapper {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 10 / 16;
-    touch-action: manipulation;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end; /* Optional: vertically center content */
-  }
-
-}
-
-
-.page img {
-   aspect-ratio: 89/128; /* Adjust based on page image shape */
-  width: auto;
-  height:100% ;
-
- /* Gray border for structure */
-  border: 0px solid pink;
-
-    display: block;
-
-}
-
-
-
-
+	.page img {
+		  aspect-ratio: 89/128; /* Adjust based on page image shape */
+		  width: auto;
+		  height:100% ;
+		 /* Gray border for structure */
+		  border: 0px solid pink;
+		  display: block;
+		}
 
    #flipbook-display-area {
+	      	display: flex;
+	      	flex-direction: column;
+	      	align-items: center;
+		justify-content: flex-end;
+		border:0px solid pink;
+		overflow:auto;
+		background: url('background.png') no-repeat;
+	      	background-size: cover;
+	     	width: 100%;
+	        height:auto;
+	    	}
+ 	
+	#flipbook {
+      		width: 100%;
+       		height:auto;
+		touch-action: manipulation;
+	      	position: relative;
+	      	justify-content: center;
+		border:0px solid green;
+		overflow:hidden;
+		aspect-ratio:128/89;
+		margin-top: 2%;
+		}
+    
+	.page {
+		  position: relative;
+		   overflow: hidden;
+		  box-shadow: 0 2px 6px rgba(96, 130, 182, 0.15); /* Soft default shadow */
+		  box-sizing: border-box;
+		  margin: 0px;
+		  background: linear-gradient(135deg, #f9f9f9, #eeeeee, #dddddd); /* Very light smoky gradient */
+		   border-radius: 8px;
+		  z-index: 999;
+		  transition: box-shadow 0.3s ease;
+		  object-fit:contain;
+		}	
 	
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-justify-content: flex-end;
-border:0px solid pink;
-overflow:auto;
- background: url('background.png') no-repeat;
-      background-size: cover;
-     width: 100%;
-       height:auto;
+ 	.tooltip-wrapper {
+	     	display: flex;
+	  	flex-direction: column; /* Stack vertically */
+	        align-items: center;    /* Center horizontally */
+	  	justify-content: center;/* Center vertically if container has height */
+	  	height: 200px;    
+	    }
 
-    }
+	    .custom-tooltip {
+	      visibility: hidden;
+	      background-color: #f3e8ff;
+	      color: purple;
+	      text-align: top;
+	      border-radius: 4px;
+	      padding: 5px 8px;
+	      position: absolute;
+	      z-index: 1002;
+	      bottom: 50%;
+	      left: 50%;
+	      transform: translateX(-50%);
+	      opacity: 0;
+	      transition: opacity 0.3s;
+	      white-space: nowrap;
+	      font-size: 16px;
+	      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+	    }
 
+	    .tooltip-wrapper:hover .custom-tooltip {
+	      visibility: visible;
+	      opacity: 1;
+	    }
 
+	 .nav-button {
+	      background: transparent;
+	      border: none;
+	      cursor: pointer;
+	      padding: 6px;	    
+	      position: relative;	
+	      opacity: 0;	
+	    }
 
- #flipbook {
-      width: 100%;
-       height:auto;
+	    .nav-button img {
+	      height: 55px;
+	      width: 55px;
+	      opacity: 0.8;
+	    }
 
-touch-action: manipulation;
-      position: relative;
-      justify-content: center;
+	    .nav-button img:hover {
+	      opacity: 1;
+	    }
 
-border:0px solid green;
-overflow:hidden;
-aspect-ratio:128/89;
-margin-top: 2%;
-    }
-    
-    
+	#flipbook-wrapper {
+	  	display: flex;
+	  	align-items: flex-end;
+	 	width:96%;
+	  	height:auto;
+	 	box-sizing: border-box;
+	   	border:0px solid red;
+	   	position: relative;
+		overflow:hidden;
+	}
 
+	.nav-left
+	{
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: flex-end;
+	  align-items: flex-end;
+	  height: 100%;
+	  width: 10%;
+	  border:0px solid blue;
+	  flex-shrink: 0;
+	}
 
-.page {
-  position: relative;
-   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(96, 130, 182, 0.15); /* Soft default shadow */
-  box-sizing: border-box;
-  margin: 0px;
-  background: linear-gradient(135deg, #f9f9f9, #eeeeee, #dddddd); /* Very light smoky gradient */
-   border-radius: 8px;
-  z-index: 999;
-  transition: box-shadow 0.3s ease;
+	.nav-right {
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: flex-end;
+	  align-items: flex-start;     
+	  height: 100%;
+	  width: 10%;
+	  border:0px solid blue;
+	  flex-shrink: 0;
+	}
 
-
-object-fit:contain;
-
-
-}
-
-
-
-
-
- .tooltip-wrapper {
-     
-display: flex;
-  flex-direction: column; /* Stack vertically */
-                /* Space between buttons */
-  align-items: center;    /* Center horizontally */
-  justify-content: center;/* Center vertically if container has height */
-  height: 200px;          
-
-
-    }
-
-    .custom-tooltip {
-      visibility: hidden;
-      background-color: #f3e8ff;
-      color: purple;
-      text-align: top;
-      border-radius: 4px;
-      padding: 5px 8px;
-      position: absolute;
-      z-index: 1002;
-      bottom: 50%;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: nowrap;
-      font-size: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .tooltip-wrapper:hover .custom-tooltip {
-      visibility: visible;
-      opacity: 1;
-    }
-
-
-    .nav-button {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 10px;
-    
-      position: relative;
-
-  	opacity: 0;
-
-
-    }
-
-
-
-    .nav-button img {
-      height: 58px;
-      width: 58px;
-      opacity: 0.8;
-    }
-
-    .nav-button img:hover {
-      opacity: 1;
-    }
-
-
-
-#flipbook-wrapper {
-
-  display: flex;
-  align-items: flex-end;
-
-  width:96%;
-  height:auto;
- 
-   box-sizing: border-box;
-   border:0px solid red;
-   position: relative;
-overflow:hidden;
-
-}
-
-
-
-
-.nav-left
-{
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
-  height: 100%;
-width: 10%;
-border:0px solid blue;
-
-
-  flex-shrink: 0;
-
-}
-
-.nav-right {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;     
-  height: 100%;
-width: 10%;
-border:0px solid blue;
-
-
-  flex-shrink: 0;
-
-}
-
-.flipbook-center {
- flex: 1;
-
-display: flex;
-justify-content: center;   /* Horizontal center */
-align-items: flex-start;     /* Vertical bottom */
-
-width:100%;
-height:auto;
-  aspect-ratio: 128/ 89;
-overflow:hidden;
-
-border:0px solid blue;
-
-
-}
-
-
+	.flipbook-center {
+		 flex: 1;
+		display: flex;
+		justify-content: center;   /* Horizontal center */
+		align-items: flex-start;     /* Vertical bottom */
+		width:100%;
+		height:auto;
+		aspect-ratio: 128/ 89;
+		overflow:hidden;
+		border:0px solid blue;
+	}
 
 
     #page-scrollbar-container {
-        width: 78%;
-	align-items:center;
-border:0px solid red;display: flex;
-
+        width: 79%;
+	align-items:flex-start;
+	border:0px solid red;
+	display: flex;
       }
-
-
-
-
-
     
+	#page-scrollbar {
+      		width: 100%;
+  		justify-content: center;   /* Horizontally center child */
+  		align-items: center;
+	}
 
-    #page-scrollbar {
-      width: 100%;
-  justify-content: center;   /* Horizontally center child */
-  align-items: center;
+	    #tooltip {
+	      position: absolute;
+	      background: #333;
+	      color: white;
+	      padding: 4px 8px;
+	      font-size: 12px;
+	      border-radius: 4px;
+	      display: none;
+	      pointer-events: none;
+	      z-index: 1001;
+	    }
+
+	    #scrollbar-tooltip {
+	      position: absolute;
+	      background: purple;
+	      color: white;
+	      padding: 4px 4px;
+	      font-size: 12px;
+	      border-radius: 4px;
+	      display: none;
+	      pointer-events: none;
+	     z-index:20001;
+	    }
+		
+	#loader {
+	  position: absolute;	  
+	  transform: translate(-50%, -50%);
+	  z-index: 9999; 
 	
-    }
+	}
 
-    #tooltip {
-      position: absolute;
-      background: #333;
-      color: white;
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 4px;
-      display: none;
-      pointer-events: none;
-      z-index: 1001;
-    }
+	      #prev-btn, #next-btn {
+	        display: block !important;
+	      }
 
-    #scrollbar-tooltip {
-      position: absolute;
-      background: purple;
-      color: white;
-      padding: 4px 4px;
-      font-size: 12px;
-      border-radius: 4px;
-      display: none;
-      pointer-events: none;
-     z-index:20001;
-    }
-
-
-
-#loader {
-  position: absolute;
-  
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  
-
-}
-
-
-  
-
-      #prev-btn, #next-btn {
-        display: block !important;
-      }
-    }
-  </style>
+     </style>
 </head>
 <body>
-  <div id="logo-caption">
-       <a href="https://tems.southwindsorschools.org/" target="_blank"><img src="TEMSLogo1.png" alt="Timothy Edwards Middle School"></a>
-    </div>
+  	<div id="logo-caption">
+      		 <a href="https://tems.southwindsorschools.org/" target="_blank"><img src="TEMSLogo1.png" alt="Timothy Edwards Middle School"></a>
+    	</div>
+	<div id="main-layout">
+  		<div id="flipbook-display-area">
+  			<div id="flipbook-wrapper">
+  				<div class="nav-left">
+					<button id="prev-btn" class="nav-button">
+					      <img src="previous-arrow.png" alt="Previous"/>
+					</button>
+					<button id="first-page-btn" class="nav-button">
+					      <img src="first.png" alt="First Page"/>
+					</button>
+	     			</div>
+				<div class="flipbook-center">
+				     <div id="flipbook"></div>
+				</div>
+  				<div class="nav-right">
+				 	<button onclick="toggleFullscreen()" class="nav-button">
+				      		<img src="fullscreen.png" alt="FullScreen"/>
+				   	</button>
+				    	<button id="next-btn" class="nav-button">
+				      		<img src="next-arrow.png" alt="Next"/>
+				    	</button>	
+					<button id="last-page-btn" class="nav-button">
+					      <img src="last.png" alt="Last Page" />
+					</button>
+     				</div>
+			</div>
 
-
-
-
-<div id="main-layout">
-  <div id="flipbook-display-area">
-  <div id="flipbook-wrapper">
-  <div class="nav-left">
- <button id="prev-btn" class="nav-button">
-      <img src="previous-arrow.png" alt="Previous"/>
-    </button>
-    <button id="first-page-btn" class="nav-button">
-      <img src="first.png" alt="First Page"/>
-    </button>
-   
-  </div>
-<div class="flipbook-center">
-     <div id="flipbook"></div>
-</div>
-
-  <div class="nav-right">
- <button onclick="toggleFullscreen()" class="nav-button">
-      <img src="fullscreen.png" alt="FullScreen"/>
-    </button>
-    <button id="next-btn" class="nav-button">
-      <img src="next-arrow.png" alt="Next"/>
-    </button>
-    <button id="last-page-btn" class="nav-button">
-      <img src="last.png" alt="Last Page" />
-    </button>
-   
-  </div>
-</div>
-
-      <!-- Page 23 Overlay -->
-   <div id="page-scrollbar-container">
-    <input type="range" id="page-scrollbar" min="1" max="1" value="1" />
-  </div>
-   
-	
-     <!-- Scrollbar -->
-
-
-  
-  </div>
-<div id="tooltip"></div>
-<div id="scrollbar-tooltip"></div>
-
-</div>
-
-
-  <audio id="page-turn-audio" preload="auto">
-    <source src="turn.mp3" type="audio/mpeg" />
-  </audio>
-
+			      <!-- Page 23 Overlay -->
+			   <div id="page-scrollbar-container">
+			    <input type="range" id="page-scrollbar" min="1" max="1" value="1" />
+			  </div>    
+  		</div>
+		<div id="tooltip"></div>
+		<div id="scrollbar-tooltip"></div>
+	</div>
+	  <audio id="page-turn-audio" preload="auto">
+	    <source src="turn.mp3" type="audio/mpeg" />
+	  </audio>
 <script>
- $(document).ready(function () {
-    const $flipbook = $("#flipbook");
-    const $scrollbar = $("#page-scrollbar");
-    const $scrollbarContainer = $("#page-scrollbar-container");
-    const $prev = $("#prev-btn");
-    const $next = $("#next-btn");
-    const $loader = $("#loader");
-
-    const totalPages = 158;
-    const initialPages = 11;
-    const loadedPages = new Set();
-
-function loadPage(i) {
-
-  if (!loadedPages.has(i)) {
-	//alert("actual load"+i);
-	    let $page;
-
-    if (i === 23) {
+	 $(document).ready(function () {
+	    const $flipbook = $("#flipbook");
+	    const $scrollbar = $("#page-scrollbar");
+	    const $scrollbarContainer = $("#page-scrollbar-container");
+	    const $prev = $("#prev-btn");
+	    const $next = $("#next-btn");
+	    const $loader = $("#loader");
 	
-      $page = $(`
-        <div class="page">
-         
-<img src="pages/Page_${i}.png" style="width: 100%; height: 100%; aspect-ratio:89/128;" />
+	    const totalPages = 158;
+	    const initialPages = 11;
+	    const loadedPages = new Set();
 
-
-
-          <div id="page23-overlay3" style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 20000;
-            pointer-events: none;
-          ">
-            <a href="https://drive.google.com/file/d/1ukrzvGwh8u7RrXyfEXSG-AL19t8D9979/view" target="_blank"
-               style="position: absolute; top: 81%; left: 51%; transform: translateX(-50%);
-                      background-color: white; color: #4682B4; font-size: 13px;
-                      padding: 4px 8px; border-radius: 4px; z-index: 20001;
-                      text-decoration: none; pointer-events: auto;">
-              <u>Link to Music</u>
-            </a>
-          </div>
-	 <div id="page23-overlay2" style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 20000;
-        pointer-events: none;
-      ">
-        <a href="https://drive.google.com/file/d/1J-KtVyAbwTF9PvWllHA7YU38h3uHXMoh/view" target="_blank"
-           style="position: absolute; top: 58%; left: 50%; transform: translateX(-50%);
-                  background-color: white; color: #4682B4; font-size: 13px;
-                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
-                  text-decoration: none; pointer-events: auto;">
-             <u>Link to Music</u>
-        </a>
-      </div>
- <div id="page23-overlay1" style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 20000;
-        pointer-events: none;
-      ">
-        <a href="https://drive.google.com/file/d/1VzIjx-NlTOM8Q88kZivzCrHhYHxrjAyd/view" target="_blank"
-           style="position: absolute; top: 29%; left: 50%; transform: translateX(-50%);
-                  background-color: white; color: #4682B4; font-size: 13px;
-                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
-                  text-decoration: none; pointer-events: auto;">
-              <u>Link to Music</u>
-        </a>
-      </div>
-        </div>
-      `);
-    } else {
-    
-      $page = $(`
-        <div class="page">
-       <img src="pages/Page_${i}.png" style="width: 100%; height: 100%; aspect-ratio:89/128;" />
-
-
-
-
-
-        </div>
-      `);
-    }
-
-    $flipbook.turn("addPage", $page, i);
-    loadedPages.add(i);
-  }
-}
-
-
+	function loadPage(i) {
+		
+		  if (!loadedPages.has(i)) {
+			let $page;
+		   	if (i === 23) {
+			$page = $(`
+		        <div class="page">
+		         	<img src="pages/Page_${i}.png" style="width: 100%; height: 100%; aspect-ratio:89/128;" />
+				<div id="page23-overlay3" style="
+				            position: absolute;
+				            top: 0;
+				            left: 0;
+				            width: 100%;
+				            height: 100%;
+				            z-index: 20000;
+				            pointer-events: none;
+				          ">
+				            <a href="https://drive.google.com/file/d/1ukrzvGwh8u7RrXyfEXSG-AL19t8D9979/view" target="_blank"
+				               style="position: absolute; top: 81%; left: 51%; transform: translateX(-50%);
+				                      background-color: white; color: #4682B4; font-size: 13px;
+				                      padding: 4px 8px; border-radius: 4px; z-index: 20001;
+				                      text-decoration: none; pointer-events: auto;">
+				              <u>Link to Music</u>
+				            </a>
+				          </div>
+					 <div id="page23-overlay2" style="
+				        position: absolute;
+				        top: 0;
+				        left: 0;
+				        width: 100%;
+				        height: 100%;
+				        z-index: 20000;
+				        pointer-events: none;
+				      ">
+				        <a href="https://drive.google.com/file/d/1J-KtVyAbwTF9PvWllHA7YU38h3uHXMoh/view" target="_blank"
+				           style="position: absolute; top: 58%; left: 50%; transform: translateX(-50%);
+				                  background-color: white; color: #4682B4; font-size: 13px;
+				                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
+				                  text-decoration: none; pointer-events: auto;">
+				             <u>Link to Music</u>
+				        </a>
+				      </div>
+				 <div id="page23-overlay1" style="
+				        position: absolute;
+				        top: 0;
+				        left: 0;
+				        width: 100%;
+				        height: 100%;
+				        z-index: 20000;
+				        pointer-events: none;
+				      ">
+				        <a href="https://drive.google.com/file/d/1VzIjx-NlTOM8Q88kZivzCrHhYHxrjAyd/view" target="_blank"
+				           style="position: absolute; top: 29%; left: 50%; transform: translateX(-50%);
+				                  background-color: white; color: #4682B4; font-size: 13px;
+				                  padding: 4px 8px; border-radius: 4px; z-index: 20001;
+				                  text-decoration: none; pointer-events: auto;">
+				              <u>Link to Music</u>
+				        </a>
+				      </div>
+				        </div>
+				      `);
+				} 
+			else {				    
+			      $page = $(`
+			        <div class="page">
+			       <img src="pages/Page_${i}.png" style="width: 100%; height: 100%; aspect-ratio:89/128;" />
+				  </div>
+			      `);
+			    }
+		    $flipbook.turn("addPage", $page, i);
+		    loadedPages.add(i);
+	  }
+	}
     function getPageLabel(page, totalPages) {
       if (page === 1) return "Front Cover";
       if (page === 2 || page === 3) return "Introduction";
       if (page === totalPages) return "Back Cover";
       const left = page % 2 === 0 ? page : page - 1;
       const right = left + 1;
-      return `Page ${left}-${right}`;
+      return `Page ${left-3}-${right-3}`;
     }
 
      const wrapperWidth = $flipbook.width();
-      const wrapperHeight = $flipbook.height();
+     const wrapperHeight = $flipbook.height();
 
-    $flipbook.turn({
-
-      width: wrapperWidth,
-      height: wrapperHeight,
-      autoCenter: true,
-      elevation: 50,
-      gradients: true,
-      pages: totalPages,
-      when: {
-        turning: function (event, page) {
-          $("#page-turn-audio")[0].play();
-          $scrollbar.val(page);
-	 if(page>11)
-	{
-          for (let i = page-5; i <= page + 5; i++) {
+    	$flipbook.turn({
+		      width: wrapperWidth,
+		      height: wrapperHeight,
+		      autoCenter: true,
+		      elevation: 50,
+		      gradients: true,
+		      pages: totalPages,
+		      when: {
+		        turning: function (event, page) {
+		          $("#page-turn-audio")[0].play();
+		          $scrollbar.val(page);
+			 if(page>11)
+			{
+		          for (let i = page-5; i <= page + 5; i++) {
+				
+		            if (i <= totalPages) {
+				//alert("Turn useful"+i);
 		
-            if (i <= totalPages) {
-		//alert("Turn useful"+i);
-
-              loadPage(i);
-            }
-          }
-	}
-	else
-	{
-			 for (let i = page; i <= page + 1; i++) {
-   if (i >= 1 && i <= totalPages) 
-		{
-		    	
 		              loadPage(i);
-         }
-
+		            }
+		          }
+			}
+			else
+			{
+					 for (let i = page; i <= page + 1; i++) {
+		   if (i >= 1 && i <= totalPages) 
+				{
+				    	
+				              loadPage(i);
+		         }
+		
+			
+		      }
+		
+			}     
+			},
+		        }
+		    });
+		
+		    for (let i = 1; i <= initialPages; i++) {
+			//alert("X");
+		      loadPage(i);
+		    }
 	
-      }
-
-	}     
-	},
-        }
-    });
-
-    for (let i = 1; i <= initialPages; i++) {
-	//alert("X");
-      loadPage(i);
-    }
-
-    $scrollbar.attr("max", totalPages);
-    $scrollbar.on("input", function () {
-      const page = parseInt($(this).val());
-      const label = getPageLabel(page, totalPages);
-      const tooltip = $("#scrollbar-tooltip");
-
-      const offset = $(this).offset();
-      const width = $(this).width();
-      const percent = (page - 1) / (totalPages - 1);
-      const left = offset.left + percent * width;
-
-      tooltip.text(label)
-             .css({ top: offset.top - 30, left: left - 20 })
-             .show();
-
-      $flipbook.turn("page", page);
-    });
-
-    $scrollbar.on("mouseleave", function () {
-      $("#scrollbar-tooltip").hide();
-    });
-
-    $prev.on("click", function () {
-     $flipbook.turn("previous");
-
-
-    });
-
-    $next.on("click", function () {
-      $flipbook.turn("next");
-    });
-
-    $("#first-page-btn").on("click", function () {
-      $flipbook.turn("page", 1);
-    });
-
-    $("#last-page-btn").on("click", function () {
-      $flipbook.turn("page", totalPages);
-    });
-    $flipbook.show();
-    $loader.hide();
+	    $scrollbar.attr("max", totalPages);
+	    $scrollbar.on("input", function () {
+	      const page = parseInt($(this).val());
+	      const label = getPageLabel(page, totalPages);
+	      const tooltip = $("#scrollbar-tooltip");
 	
-
-
-$flipbook.css("visibility", "visible").show()
-$("#main-layout").css("visibility", "visible").show();
-
-
-    $scrollbarContainer.css("visibility", "visible").show();
-  
-  });
-
-function toggleFullscreen() {
-  const flipbook = document.getElementById("main-layout");
-  if (!document.fullscreenElement) {
-    flipbook.requestFullscreen().catch(err => {
-      alert(`Error attempting to enable full-screen mode: ${err.message}`);
-    });
-  } else {
-    document.exitFullscreen();
-  }
-}
-
+	      const offset = $(this).offset();
+	      const width = $(this).width();
+	      const percent = (page - 1) / (totalPages - 1);
+	      const left = offset.left + percent * width;
+	
+	      tooltip.text(label)
+	             .css({ top: offset.top - 30, left: left - 20 })
+	             .show();
+	
+	      $flipbook.turn("page", page);
+	    });
+	
+	    $scrollbar.on("mouseleave", function () {
+	      $("#scrollbar-tooltip").hide();
+	    });
+	
+	    $prev.on("click", function () {
+	     $flipbook.turn("previous");
+	
+	
+	    });
+	
+	    $next.on("click", function () {
+	      $flipbook.turn("next");
+	    });
+	
+	    $("#first-page-btn").on("click", function () {
+	      $flipbook.turn("page", 1);
+	    });
+	
+	    $("#last-page-btn").on("click", function () {
+	      $flipbook.turn("page", totalPages);
+	    });
+	    $flipbook.show();
+	    $loader.hide();
+		
+	
+	
+	$flipbook.css("visibility", "visible").show()
+	$("#main-layout").css("visibility", "visible").show();
+	
+	
+	    $scrollbarContainer.css("visibility", "visible").show();
+	  
+	  });
+	
+	function toggleFullscreen() {
+	  const flipbook = document.getElementById("main-layout");
+	  if (!document.fullscreenElement) {
+	    flipbook.requestFullscreen().catch(err => {
+	      alert(`Error attempting to enable full-screen mode: ${err.message}`);
+	    });
+	  } else {
+	    document.exitFullscreen();
+	  }
+	}
+	
 </script>
-
 </body>
 </html>
